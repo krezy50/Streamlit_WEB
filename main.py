@@ -6,6 +6,7 @@
 
 import streamlit as st
 import pandas as pd
+import altair as alt
 
 def rate_of_return_by_interest(Loan,Monthly_Rent_Fee,Input_Price):
 
@@ -13,7 +14,7 @@ def rate_of_return_by_interest(Loan,Monthly_Rent_Fee,Input_Price):
     monthly_rent_fee=Monthly_Rent_Fee
     input_price=Input_Price
     loan_interest = 0.01
-    df= {'i':[],'rate of return':[]}
+    df= {'loan_interest':[],'rate_of_return_loan_cost':[]}
 
     for i in range(1,700):
 
@@ -24,8 +25,8 @@ def rate_of_return_by_interest(Loan,Monthly_Rent_Fee,Input_Price):
         # 대출/비용 수익률
         rate_of_return_loan_cost = monthly_revenue * 12 / input_price * 100
 
-        df['i'].append(round(loan_interest,2))
-        df['rate of return'].append(round(rate_of_return_loan_cost,2))
+        df['loan_interest'].append(round(loan_interest,2))
+        df['rate_of_return_loan_cost'].append(round(rate_of_return_loan_cost,2))
 
 
     return df
@@ -103,15 +104,28 @@ def main():
     st.write("대출/비용 포함 수익률:",round(rate_of_return_loan_cost,2),"%")
     st.caption("월세x12 / 실투자금")
     
-    st.write("이율에 따른 수익률 변화")
+    # st.write("이율에 따른 수익률 변화")
 
     data = rate_of_return_by_interest(loan,monthly_rent_fee,input_price)
 
     df=pd.DataFrame(
         data,
     )
-    df_2=df.set_index(keys='i')
-    st.line_chart(df_2)
+ 
+    chart = (
+        alt.Chart(
+            data=df,
+            title="이율에 따른 수익률 변화",
+        )
+        .mark_line()
+        .encode(
+            x=alt.X("loan_interest", axis=alt.Axis(title="이율")),
+            y=alt.Y("rate_of_return_loan_cost", axis=alt.Axis(title="수익률")),
+        )
+    )
+
+    st.altair_chart(chart, use_container_width=True)
+
 
     st.subheader("투입 비용")
     # 투자금
