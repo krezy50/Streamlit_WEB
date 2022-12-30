@@ -5,11 +5,36 @@
 
 
 import streamlit as st
+import pandas as pd
+
+def rate_of_return_by_interest(Loan,Monthly_Rent_Fee,Input_Price):
+
+    loan=Loan
+    monthly_rent_fee=Monthly_Rent_Fee
+    input_price=Input_Price
+    loan_interest = 0.01
+    df= {'i':[],'rate of return':[]}
+
+    for i in range(1,700):
+
+        loan_interest = loan_interest + 0.01
+        # 월 수령액 (월세 - 이자)
+        monthly_revenue = int(monthly_rent_fee - loan * loan_interest / 100 / 12)
+
+        # 대출/비용 수익률
+        rate_of_return_loan_cost = monthly_revenue * 12 / input_price * 100
+
+        df['i'].append(round(loan_interest,2))
+        df['rate of return'].append(round(rate_of_return_loan_cost,2))
+
+
+    return df
+
 
 def main():
 
     buy_price = st.sidebar.number_input("매입 금액(만원,부가세 제외)",step=1,value=35886)
-    vat = st.sidebar.number_input("부가세(만원)",step=1,value=19917)
+    vat = st.sidebar.number_input("부가세(만원)",step=1,value=1991)
     area_use = st.sidebar.number_input("전용 평수(평)",step=1,value=21)
     area_all = st.sidebar.number_input("공용 평수(평)",step=1,value=44)
     loan = st.sidebar.number_input("대출 금액(만원)",step=1,value=35800)
@@ -71,12 +96,22 @@ def main():
     st.caption("매입중개료(매매금액*0.9%) + 임대중개료((보증금+100치월세)*0.9%) + 법무사 비용")
 
     # 대출 수익률
-    st.write("대출 포함 수익률:",round(rate_of_return_loan,2),"%")
+    st.write("매입-대출 수익률:",round(rate_of_return_loan,2),"%")
     st.caption("월세x12 / (매입-대출)")
 
     # 대출/비용 수익률
     st.write("대출/비용 포함 수익률:",round(rate_of_return_loan_cost,2),"%")
     st.caption("월세x12 / 실투자금")
+    
+    st.write("이율에 따른 수익률 변화")
+
+    data = rate_of_return_by_interest(loan,monthly_rent_fee,input_price)
+
+    df=pd.DataFrame(
+        data,
+    )
+    df_2=df.set_index(keys='i')
+    st.line_chart(df_2)
 
     st.subheader("투입 비용")
     # 투자금
@@ -86,6 +121,7 @@ def main():
     # 초기 투자금
     st.write("초기 투자비:",beginning_price,"만원")
     st.caption("(실투자금 + 부가세)")
+
 
 
 main()
