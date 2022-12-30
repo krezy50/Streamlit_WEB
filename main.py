@@ -84,7 +84,7 @@ def main():
     st.caption("(매입 금액 - 대출 금액 - 보증금 + 취등록세 + 중개료 + 인테리어)")
 
     # 초기 투자금
-    st.write("초기 투자기:",beginning_price,"만원")
+    st.write("초기 투자비:",beginning_price,"만원")
     st.caption("(실투자금 + 부가세)")
 
 
