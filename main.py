@@ -104,7 +104,7 @@ def main():
     st.write("대출/비용 포함 수익률:",round(rate_of_return_loan_cost,2),"%")
     st.caption("월세x12 / 실투자금")
     
-    # st.write("이율에 따른 수익률 변화")
+    st.subheader("이율에 따른 수익률 변화")
 
     data = rate_of_return_by_interest(loan,monthly_rent_fee,input_price)
 
@@ -115,7 +115,6 @@ def main():
     chart = (
         alt.Chart(
             data=df,
-            title="이율에 따른 수익률 변화",
         )
         .mark_line()
         .encode(
