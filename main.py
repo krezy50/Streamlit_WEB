@@ -17,7 +17,7 @@ def main():
     deposit = st.sidebar.number_input("보증금(만원)",step=1,value=1400)
     monthly_rent_fee = st.sidebar.number_input("월세(만원)",step=1,value=140)
     buy_brokerage_fee = st.sidebar.number_input("매입 중개료(만원)",step=1,value=int(buy_price*0.009))
-    rent_brokerage_fee = st.sidebar.number_input("매입 중개료(만원)", step=1, value=int((deposit+monthly_rent_fee*100) * 0.009))
+    rent_brokerage_fee = st.sidebar.number_input("임대 중개료(만원)", step=1, value=int((deposit+monthly_rent_fee*100) * 0.009))
     register_brokerage_fee = st.sidebar.number_input("법무사 비용(만원)",step=1,value=30)
     interior = st.sidebar.number_input("인테리어(만원)",step=1,value=1500)
 
