@@ -24,7 +24,11 @@ import plotly
 
 def Scrapping():
 
-    st.markdown(':chart_with_upwards_trend: 출처 : https://portal.kfb.or.kr/fingoods/cofix.php')
+    st.markdown(':chart_with_upwards_trend: COFIX 출처(은행연합회) : https://portal.kfb.or.kr/fingoods/cofix.php')
+    st.markdown(':chart_with_downwards_trend: MOR 출처(국민은행) : https://obank.kbstar.com/quics?page=C019205')
+    st.markdown(':chart_with_upwards_trend: KOFIA BIS(금융투자협회) : https://www.kofiabond.or.kr/index.html')
+    st.caption('(MOR 3개월 CD금리, MOR 6개월이상 시가평가-채권시장평가기준수익률-금융채AAA)')
+
     url = 'https://portal.kfb.or.kr/fingoods/cofix.php'
     page = requests.get(url)
 
@@ -68,7 +72,7 @@ def Scrapping():
 
 
 
-st.sidebar.header("Python projects of krezy50")
+st.sidebar.header("Python projects of 502")
 system = st.sidebar.radio("Choice a project",('임대 수익률 계산기','시장 금리 스크래핑'))
 
 if system == '임대 수익률 계산기':
