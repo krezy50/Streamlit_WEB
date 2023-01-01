@@ -17,9 +17,9 @@ def rate_of_return_by_interest(Loan,Monthly_Rent_Fee,Input_Price):
     loan_interest = 0.01
     df= {'loan_interest':[],'rate_of_return_loan_cost':[]}
 
-    for i in range(1,700):
+    for i in range(1,150):
 
-        loan_interest = loan_interest + 0.01
+        loan_interest = loan_interest + 0.05
         # 월 수령액 (월세 - 이자)
         monthly_revenue = int(monthly_rent_fee - loan * loan_interest / 100 / 12)
 
@@ -52,6 +52,8 @@ def main():
 
     # 매입 평단가
     average_price_by_area_all =int(buy_price / area_all)
+    # 임대 평단가
+    average_rent_fee_by_area_all = round(monthly_rent_fee / area_all,2)
     # 무대출 수익률
     rate_of_return_no_loan = round(monthly_rent_fee*12/buy_price*100,2)
     # 월 이자
@@ -80,7 +82,7 @@ def main():
     st.write("대출 금액",loan,"만원,"," 이율:",round(loan_interest,2),"%")
 
     # 월 이자
-    st.write("월 이자:",loan_interest_price,"만원,"," 임대료:",monthly_rent_fee,"만원")
+    st.write("월 이자:",loan_interest_price,"만원,"," 임대료:",monthly_rent_fee,"만원(평당:",average_rent_fee_by_area_all,"만원)" )
 
     # 월 수령액 (월세 - 이자)
     st.write("월 수령액 ",monthly_rent_fee,"-",loan_interest_price,":",monthly_revenue,"만원")
@@ -125,16 +127,25 @@ def main():
     data2 = rate_of_return_by_interest(loan, monthly_rent_fee + 10, input_price)
     data3 = rate_of_return_by_interest(loan, monthly_rent_fee - 10, input_price)
     data['이율']=data1['loan_interest']
-    data['수익율(임대료)']=data1['rate_of_return_loan_cost']
-    data['수익율(임대료+10만원)']=data2['rate_of_return_loan_cost']
-    data['수익율(임대료-10만원)']=data3['rate_of_return_loan_cost']
+    data['수익률(임대료)']=data1['rate_of_return_loan_cost']
+    data['수익률(임대료+10만원)']=data2['rate_of_return_loan_cost']
+    data['수익률(임대료-10만원)']=data3['rate_of_return_loan_cost']
 
     df=pd.DataFrame(
         data,
-        columns=['이율','수익율(임대료)','수익율(임대료+10만원)','수익율(임대료-10만원)']
+        columns=['이율','수익률(임대료)','수익률(임대료+10만원)','수익률(임대료-10만원)']
     )
     df2=df.set_index('이율')
     st.line_chart(df2)
+
+    #값(수익률) 으로 index(이율) 찾기
+    index_number1 = df2.index[df2['수익률(임대료)']==0.0000]
+    index_number2 = df2.index[df2['수익률(임대료+10만원)'] == 0.0000]
+    index_number3 = df2.index[df2['수익률(임대료-10만원)'] == 0.0000]
+
+    st.write("수익률(임대료+10만원) 0%일 때 대출 이율:",index_number2[0])
+    st.write("수익률(임대료) 0%일 때 대출 이율:",index_number1[0])
+    st.write("수익률(임대료-10만원) 0%일 때 대출 이율:",index_number3[0])
 
     # chart = (
     #     alt.Chart(
