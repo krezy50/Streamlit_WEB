@@ -74,48 +74,48 @@ def main():
     beginning_price = input_price + vat
 
     st.subheader(":page_facing_up: 기본 정보")
-    st.write("매입 금액:", buy_price,"만원,"," 부가세:", vat,"만원")
-    st.write("전용 평수:", area_use,"평,"," 공용 평수:", area_all,"평")
+    st.write("매입 금액:", format(buy_price,','),"만원,"," 부가세:", format(vat,','),"만원")
+    st.write("전용 평수:", format(area_use,','),"평,"," 공용 평수:",  format(area_all,','),"평")
     # 매입 평단가
-    st.write("매입 평단가(공용):",average_price_by_area_all,"만원")
+    st.write("매입 평단가(공용):", format(average_price_by_area_all,','),"만원")
 
-    st.write("대출 금액",loan,"만원,"," 이율:",round(loan_interest,2),"%")
+    st.write("대출 금액", format(loan,','),"만원,"," 이율:", format(round(loan_interest,2),','),"%")
 
     # 월 이자
-    st.write("월 이자:",loan_interest_price,"만원,"," 임대료:",monthly_rent_fee,"만원(평당:",average_rent_fee_by_area_all,"만원)" )
+    st.write("월 이자:", format(loan_interest_price,','),"만원,"," 임대료:", format(monthly_rent_fee,','),"만원(평당:", format(average_rent_fee_by_area_all,','),"만원)" )
 
     # 월 수령액 (월세 - 이자)
-    st.write("월 수령액 ",monthly_rent_fee,"-",loan_interest_price,":",monthly_revenue,"만원")
+    st.write("월 수령액 ", format(monthly_rent_fee,','),"-", format(loan_interest_price,','),":", format(monthly_revenue,','),"만원")
 
 
     st.subheader(":dollar: 투입 비용")
 
     # 취등록세
-    st.write("취득세:", register_fee, "만원")
+    st.write("취득세:",  format(register_fee,','), "만원")
     st.caption("취득세율 4.6%")
 
     # 중개료
-    st.write("중개료:", brokerage_fee, "만원")
+    st.write("중개료:",  format(brokerage_fee,','), "만원")
     st.caption("매입중개료(매매금액*0.9%) + 임대중개료((보증금+100치월세)*0.9%) + 법무사 비용")
 
     # 투자금
-    st.write("실투자금:",input_price,"만원")
+    st.write("실투자금:", format(input_price,','),"만원")
     st.caption("(매입 금액 - 대출 금액 - 보증금 + 취등록세 + 중개료 + 인테리어)")
 
     # 초기 투자금
-    st.write("초기 투자비:",beginning_price,"만원")
+    st.write("초기 투자비:", format(beginning_price,','),"만원")
     st.caption("(실투자금 + 부가세)")
 
     st.subheader(":moneybag: 수익률")
     # 무대출 수익률
-    st.write("자기 자본 수익율(무대출):",rate_of_return_no_loan,"%")
+    st.write("자기 자본 수익율(무대출):", format(rate_of_return_no_loan,','),"%")
 
     # 대출시 수익률
-    st.write("대출시 수익률:",round(rate_of_return_loan,2),"%")
+    st.write("대출시 수익률:", format(round(rate_of_return_loan,2),','),"%")
     st.caption("월세x12 / (매입-대출)")
 
     # 대출/비용 수익률
-    st.write("대출/비용 포함시 수익률:",round(rate_of_return_loan_cost,2),"%")
+    st.write("대출/비용 포함시 수익률:", format(round(rate_of_return_loan_cost,2),','),"%")
     st.caption("월세x12 / 실투자금")
 
     # 라인 차트
@@ -143,9 +143,9 @@ def main():
     index_number2 = df2.index[df2['수익률(임대료+10만원)'] == 0.0000]
     index_number3 = df2.index[df2['수익률(임대료-10만원)'] == 0.0000]
 
-    st.write("수익률(임대료+10만원) 0%일 때 대출 이율:",index_number2[0])
-    st.write("수익률(임대료) 0%일 때 대출 이율:",index_number1[0])
-    st.write("수익률(임대료-10만원) 0%일 때 대출 이율:",index_number3[0])
+    st.write("수익률(임대료+10만원) 0%일 때 대출 이율:", format(index_number2[0],','))
+    st.write("수익률(임대료) 0%일 때 대출 이율:", format(index_number1[0],','))
+    st.write("수익률(임대료-10만원) 0%일 때 대출 이율:", format(index_number3[0],','))
 
     # chart = (
     #     alt.Chart(
@@ -160,5 +160,10 @@ def main():
     # )
     # st.line_chart(chart, use_container_width=True)
 
-main()
 
+# system = st.sidebar.radio("부동산 투자 검토",('임대 수익률 계산기','예비'))
+#
+# if system == '임대 수익률 계산기':
+#     main()
+
+main()
