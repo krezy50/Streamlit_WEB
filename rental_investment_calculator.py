@@ -129,7 +129,9 @@ def RentalInvestmentCalculator():
         data,
         columns=['이율','수익률(임대료)','수익률(임대료+10만원)','수익률(임대료-10만원)']
     )
-    df2=df.set_index('이율')
+    # st.write(df)
+    df2=df.set_index('이율') #index 변경
+    # st.write(df2)
     st.line_chart(df2)
 
     #값(수익률) 으로 index(이율) 찾기
