@@ -19,7 +19,7 @@ import pandas as pd
 from html_table_parser import parser_functions
 import altair as alt
 import plotly.express as px
-import plotly
+# import plotly
 
 
 def Scrapping():
