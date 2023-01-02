@@ -58,9 +58,10 @@ def MarketRateScrapping():
     fig = px.line(df_reversed,title='단기 COFIX 금리 변화',labels={'value':'금리','variable':'항목'},height=550)
     st.plotly_chart(fig)
 
+
     st.subheader(":money_with_wings: MOR 금리")
 
-    url = 'https://obank.kbstar.com/quics?page=C019205' #MOR 금리
+    url = 'https://obank.kbstar.com/quics?page=C019205' #KB MOR 금리
     page = requests.get(url)
 
     soup = BeautifulSoup(page.text, 'html.parser') #html 로 파싱하여 읽어오기
@@ -86,6 +87,7 @@ def MarketRateScrapping():
     fig = px.line(df7,title='MOR 금리 변화(전주-금주)',labels={'value':'금리','index':'주차'},height=550)
     st.plotly_chart(fig)
 
+    #엑셀 : 금융채 data 차트 만들기
     df=pd.read_csv("./data/MOR.csv",encoding='cp949')
     df2=df.set_index(df.columns[0])
     st.write(df2)
