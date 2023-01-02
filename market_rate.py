@@ -97,7 +97,7 @@ def MarketRateScrapping():
     # grid_options  = {
     #                 'pagination':True,
     # }
-    AgGrid(df,height=400,fit_columns_on_grid_load=True)
+    AgGrid(df,height=400,fit_columns_on_grid_load=False)
 
     # 표 수정하기
     # grid_return = AgGrid(df, editable=True)
