@@ -15,6 +15,7 @@ with st.form("시스템 선택"):
     submitted = st.form_submit_button("Submit")
 
 if system == '임대 수익률 계산기':
+    st.caption("sidebar menu에서 관련 정보를 입력하세요.")
     RentalInvestmentCalculator()
 elif system == '시장 금리 스크래핑':
     MarketRateScrapping()
