@@ -10,6 +10,8 @@ import altair as alt
 import plotly.express as px
 # import plotly
 
+from st_aggrid import AgGrid
+
 def MarketRateScrapping():
 
     st.markdown(':chart_with_upwards_trend: COFIX 출처(은행연합회) : https://portal.kfb.or.kr/fingoods/cofix.php')
@@ -55,7 +57,7 @@ def MarketRateScrapping():
     # st.write(df_reversed)
 
     #plotly line 차트 설정 활용
-    fig = px.line(df_reversed,title='단기 COFIX 금리 변화',labels={'value':'금리','variable':'항목'},height=550)
+    fig = px.line(df_reversed,title='단기 COFIX 금리 변화',labels={'value':'금리','variable':'항목'})
     st.plotly_chart(fig)
 
 
@@ -84,14 +86,24 @@ def MarketRateScrapping():
     df7= pd.DataFrame.transpose(df6) #행,열 바꾸기
     # st.write(df7)
 
-    fig = px.line(df7,title='MOR 금리 변화(전주-금주)',labels={'value':'금리','index':'주차'},height=550)
+    fig = px.line(df7,title='MOR 금리 변화(전주-금주)',labels={'value':'금리','index':'주차'})
     st.plotly_chart(fig)
 
     #엑셀 : 금융채 data 차트 만들기
     df=pd.read_csv("./data/MOR.csv",encoding='cp949')
     df2=df.set_index(df.columns[0])
-    st.write(df2)
+    # st.write(df2)
 
-    fig = px.line(df2,title='금융채(MOR) 금리 변화',labels={'value':'금리','index':'주차','variable':'항목'},height=550,width=900)
+    # grid_options  = {
+    #                 'pagination':True,
+    # }
+    AgGrid(df,height=400,fit_columns_on_grid_load=True)
+
+    # 표 수정하기
+    # grid_return = AgGrid(df, editable=True)
+    # new_df = grid_return['data']
+    # AgGrid(new_df)
+
+    fig = px.line(df2,title='금융채(MOR) 금리 변화',labels={'value':'금리','index':'주차','variable':'금융채'})
     st.plotly_chart(fig)
 
