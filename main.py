@@ -8,8 +8,11 @@ from rental_investment_calculator import RentalInvestmentCalculator #임대 수�
 from market_rate import MarketRateScrapping #스크랩핑
 
 
-st.sidebar.header("Python projects of 502")
-system = st.sidebar.radio("Choice a project",('임대 수익률 계산기','시장 금리 스크래핑'))
+with st.form("시스템 선택"):
+    st.header("Python projects of 502")
+
+    system=st.radio("Choice a project", ('임대 수익률 계산기', '시장 금리 스크래핑'))
+    submitted = st.form_submit_button("Submit")
 
 if system == '임대 수익률 계산기':
     RentalInvestmentCalculator()
