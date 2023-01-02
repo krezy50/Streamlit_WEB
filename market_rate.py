@@ -10,7 +10,7 @@ import altair as alt
 import plotly.express as px
 # import plotly
 
-from st_aggrid import AgGrid
+from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 
 def MarketRateScrapping():
 
@@ -94,10 +94,14 @@ def MarketRateScrapping():
     df2=df.set_index(df.columns[0])
     # st.write(df2)
 
-    # grid_options  = {
-    #                 'pagination':True,
-    # }
-    AgGrid(df,height=400,fit_columns_on_grid_load=False)
+    # More info: https://www.ag-grid.com/react-data-grid/column-sizing/#auto-size-columns
+    #     ColumnsAutoSizeMode.NO_AUTOSIZE             -> No column resizing. Width defined at gridOptins is used.
+    #     ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW -> Make the currently visible columns fit the screen. The columns will scale (growing or shrinking) to fit the available width.
+    #     ColumnsAutoSizeMode.FIT_CONTENTS    -> Grid will work out the best width to fit the contents of the cells in the column.
+    # Default: ColumnsAutoSizeMode.NO_AUTOSIZE
+    AgGrid(df,height=400,columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS)
+
+
 
     # 표 수정하기
     # grid_return = AgGrid(df, editable=True)
