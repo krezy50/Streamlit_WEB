@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
-import altair as alt
 
-
-def rate_of_return_by_interest(Loan,Monthly_Rent_Fee,Input_Price):
+def rate_of_return_by_interest(Loan,Monthly_Rent_Fee,Input_Price): #이율에 따른 수익률 변화 Data만들기
 
     loan=Loan
     monthly_rent_fee=Monthly_Rent_Fee
@@ -23,8 +21,26 @@ def rate_of_return_by_interest(Loan,Monthly_Rent_Fee,Input_Price):
         df['loan_interest'].append(round(loan_interest,2))
         df['rate_of_return_loan_cost'].append(round(rate_of_return_loan_cost,2))
 
-
     return df
+
+def FindZeroProfit(Data): #DataFrame 생성과 수익률 0 기준 이율 찾기
+
+    data = Data
+    data2 = {}
+    data2['이율']=data['loan_interest']
+    data2['수익률(임대료)']=data['rate_of_return_loan_cost']
+
+    df=pd.DataFrame(
+        data2,
+        columns=['이율','수익률(임대료)']
+    )
+    # st.write(df)
+    df2=df.set_index('이율') #index 변경
+
+    #값(수익률) 으로 index(이율) 찾기
+    index_number = df2.index[df2['수익률(임대료)']==0.0000]
+
+    return {'df':df2,'index_number':index_number}
 
 
 def RentalInvestmentCalculator():
@@ -112,46 +128,56 @@ def RentalInvestmentCalculator():
     st.write("대출/비용 포함시 수익률:", format(round(rate_of_return_loan_cost,2),','),"%")
     st.caption("월세x12 / 실투자금")
 
-    # 라인 차트
+
     # st.write("이율에 따른 수익률 변화")
     st.markdown(":chart_with_downwards_trend: **:blue[이율에 따른 수익률 변화]**")
 
-    data = {}
-    data1 = rate_of_return_by_interest(loan, monthly_rent_fee, input_price)
-    data2 = rate_of_return_by_interest(loan, monthly_rent_fee + 10, input_price)
-    data3 = rate_of_return_by_interest(loan, monthly_rent_fee - 10, input_price)
-    data['이율']=data1['loan_interest']
-    data['수익률(임대료)']=data1['rate_of_return_loan_cost']
-    data['수익률(임대료+10만원)']=data2['rate_of_return_loan_cost']
-    data['수익률(임대료-10만원)']=data3['rate_of_return_loan_cost']
+    data1 = FindZeroProfit(rate_of_return_by_interest(loan, monthly_rent_fee, input_price))
+    data2 = FindZeroProfit(rate_of_return_by_interest(loan, monthly_rent_fee + 10, input_price))
+    data3 = FindZeroProfit(rate_of_return_by_interest(loan, monthly_rent_fee - 10, input_price))
+    # 라인 차트
+    st.line_chart(data1['df'])
 
-    df=pd.DataFrame(
-        data,
-        columns=['이율','수익률(임대료)','수익률(임대료+10만원)','수익률(임대료-10만원)']
-    )
-    # st.write(df)
-    df2=df.set_index('이율') #index 변경
-    # st.write(df2)
-    st.line_chart(df2)
+    # st.write(data1['index_number'])
 
-    #값(수익률) 으로 index(이율) 찾기
-    index_number1 = df2.index[df2['수익률(임대료)']==0.0000]
-    index_number2 = df2.index[df2['수익률(임대료+10만원)'] == 0.0000]
-    index_number3 = df2.index[df2['수익률(임대료-10만원)'] == 0.0000]
+    # #값(수익률) 으로 index(이율) 찾기
+    # st.write("수익률(입력 임대료) 0%일 때 대출 이율 : ", data1['index_number'][0])
+    # st.write("수익률(입력 임대료+10만원) 0%일 때 대출 이율:", data2['index_number'][0])
+    # st.write("수익률(입력 임대료-10만원) 0%일 때 대출 이율:", data3['index_number'][0])
 
-    st.write("수익률(임대료+10만원) 0%일 때 대출 이율:", format(index_number2[0],','))
-    st.write("수익률(임대료) 0%일 때 대출 이율:", format(index_number1[0],','))
-    st.write("수익률(임대료-10만원) 0%일 때 대출 이율:", format(index_number3[0],','))
+    save_data = {
 
-    # chart = (
-    #     alt.Chart(
-    #         data=df,
-    #     )
-    #     .mark_line()
-    #     .encode(
-    #         # x=alt.X("loan_interest", axis=alt.Axis(title="이율")),
-    #         # y=alt.Y('rate_of_return_loan_cost_plus', axis=alt.Axis(title="수익률")),
-    #
-    #     )
-    # )
-    # st.line_chart(chart, use_container_width=True)
+            "매입 금액(만원,부가세 제외)":buy_price,
+            "부가세(만원)":vat,
+            "전용 평수(평)":area_use,
+            "공용 평수(평)":area_all,
+            "대출 금액(만원)":loan,
+            "이율(%)":loan_interest,
+            "보증금(만원)":deposit,
+            "임대료(만원)":monthly_rent_fee,
+            "매입 중개료(만원)":buy_brokerage_fee,
+            "임대 중개료(만원)":rent_brokerage_fee,
+            "인테리어(만원)":interior,
+            "기타. 보험, 법무사 비용 등(만원)":register_brokerage_fee,
+            "매입 평단가(공용):":average_price_by_area_all,
+            "월 이자(만원)":loan_interest_price,
+            "평당 임대료(만원)":average_rent_fee_by_area_all,
+            "월 수령액(만원)":monthly_revenue,
+            "취득세(만원)":register_fee,
+            "중개료(만원)":brokerage_fee,
+            "실투자금(만원)":input_price,
+            "초기 투자비(만원)":beginning_price,
+            "자기 자본 수익율(무대출)":rate_of_return_no_loan,
+            "대출시 수익률":round(rate_of_return_loan,2),
+            "대출/비용 포함시 수익률":round(rate_of_return_loan_cost,2),
+            # "수익률(입력 임대료) 0%일 때 대출 이율":data1['index_number'][0],
+            # "수익률(입력 임대료+10만원) 0%일 때 대출 이율":data2['index_number'][0],
+            # "수익률(입력 임대료-10만원) 0%일 때 대출 이율":data3['index_number'][0],
+
+    }
+
+    save_df = pd.DataFrame.from_dict([save_data])
+    save_df_transposed = save_df.T
+    # st.write(save_df_transposed)
+
+    return save_df_transposed

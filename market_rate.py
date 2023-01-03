@@ -11,6 +11,7 @@ import plotly.express as px
 # import plotly
 
 from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
+import FinanceDataReader as fdr
 
 def MarketRateScrapping():
 
@@ -19,10 +20,10 @@ def MarketRateScrapping():
     st.markdown(':chart_with_upwards_trend: KOFIA BIS(금융투자협회) : https://www.kofiabond.or.kr/index.html')
     st.caption('(MOR 3개월 CD금리, MOR 6개월이상 시가평가-채권시장평가기준수익률-금융채AAA)')
 
-    st.text_area(":question: 장단기 금리차 역전의 의미","단기채는 정책금리(기준금리)의 변화에 민간하게 반응하며, 장기채 금리는 경기 상황이 반영된다."
-                 " 경기가 호황일 경우 기업과 가계의 적극적인 투자로 장기채권 발행량이 증가하면서 금리가 상승하며,"
-                 " 반대로 금리가 하락하는 상황은 경기침체의 현상이 될 수 있다."
-                 " 장단기 금리가 역전이 되면 경기침체의 전조로 해석될 여지가 있다. "
+    st.text_area(":question: 장단기 금리차 역전의 의미","단기채는 정책 금리(기준금리)의 변화에 민감하게 반응하며, 장기채 금리는 경기 상황이 반영된다."
+                 " 경기가 호황일 경우 기업과 가계의 적극적인 투자로 장기 채권 발행량이 증가하면서 금리가 상승하며,"
+                 " 반대로 금리가 하락 하는 상황은 경기 침체의 현상이 될 수 있다."
+                 " 장단기 금리가 역전이 되면 경기 침체의 전조로 해석될 여지가 있다. "
                  " 은행은 단기로 자금을 빌려 장기로 대출을 실행하여 차익을 얻는데,"
                  " 장단기 금리차가 감소할 경우 대출로 인한 수익이 줄어드는 만큼 대출 규모를 줄이게 된다."
                  " 결과적으로 유동성 공급이 제한되는 경우 이는 경기에 악영향을 미칠수 있다.",height=200)
@@ -118,4 +119,8 @@ def MarketRateScrapping():
 
     fig = px.line(df2,title='금융채(MOR) 금리 변화',labels={'value':'금리','index':'주차','variable':'금융채'})
     st.plotly_chart(fig)
+
+
+
+
 
