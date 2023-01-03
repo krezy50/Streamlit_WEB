@@ -3,3 +3,4 @@ html_table_parser
 plotly
 streamlit-aggrid
 finance-datareader
+openpyxl
