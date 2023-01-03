@@ -4,9 +4,12 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 import streamlit as st
+import pandas as pd
+
 from rental_investment_calculator import RentalInvestmentCalculator #임대 수익 계산기
 from market_rate import MarketRateScrapping #스크랩핑
-from control_excel import WriteExcel
+from control_excel import convert_df
+
 
 
 # import FinanceDataReader as fdr
@@ -40,12 +43,22 @@ if system == '임대 수익률 계산기':
     st.caption("Sidebar MENU 에서 관련 정보를 입력하세요.")
     result = RentalInvestmentCalculator()
 
-    with st.form("엑셀 추출"):
-        title = st.text_input("input a title")
-        add_title = result.rename(columns={0:title}) #제목 index으로 변경
-        st.write(WriteExcel(add_title))
-        submitted = st.form_submit_button("Submit")
-        st.markdown("https://krezy50-workplace-main-f03xs1.streamlit.app/test.xlsx")
+
+    title = st.text_input("다운받을 파일명을 입력하세요.",max_chars=10)
+    add_title = result.rename(columns={0:title}) #제목 index으로 변경
+    csv = convert_df(add_title)
+
+    st.download_button( #파일에 쓰고 다운로드
+        label="Download data as CSV",
+        data=csv,
+        file_name=title+".csv",
+        mime='text/csv',
+    )
+
+    uploaded_file = st.file_uploader("Choose a file")
+    if uploaded_file is not None:
+        dataframe = pd.read_csv(uploaded_file)
+        st.write(dataframe)
 
 elif system == '시장 금리 스크래핑':
     MarketRateScrapping()

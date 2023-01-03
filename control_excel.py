@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import os
-from requests import get  # to make GET request
 
 def WriteExcel(Data):
 
@@ -12,6 +10,7 @@ def WriteExcel(Data):
         writer = pd.ExcelWriter(file_name, mode='a', engine='openpyxl', if_sheet_exists='overlay')
 
         max_row = writer.sheets['Sheet1'].max_row
+        # max_col = writer.sheets['Sheet1'].max_col
 
         if max_row == 1:
             df_result.to_excel(
@@ -32,7 +31,7 @@ def WriteExcel(Data):
                 writer,
                 sheet_name='Sheet1',
                 startcol = 0,
-                startrow = writer.sheets['Sheet1'].max_row,
+                startrow = max_row,
                 index=True,
                 encoding = 'utf-8',
                 na_rep = '',      # 결측값을 ''으로 채우기
@@ -45,17 +44,17 @@ def WriteExcel(Data):
         df_result.to_excel(
             excel_writer = file_name,
             sheet_name = 'Sheet1',
-            index = True,
+            index = False,
             encoding = 'utf-8',
             na_rep = '',      # 결측값을 ''으로 채우기
             inf_rep = ''     # 무한값을 ''으로 채우기
         )     # 해당 파일이 열려있으면 안됨.
 
-    return "success"
+    return "save success"
 
-# def DownLoad(file_name):
-#     with open(file_name, "wb") as file:   # open in binary mode
-#         response = get("http://localhost:8501/test.xlsx")               # get request
-#         file.write(response.content)      # write to file
+@st.cache
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
 
 
