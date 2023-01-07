@@ -43,7 +43,6 @@ if system == '임대 수익률 계산기':
     st.caption("Sidebar MENU 에서 관련 정보를 입력하세요.")
     result = RentalInvestmentCalculator()
 
-
     title = st.text_input("다운받을 파일명을 입력하세요.",max_chars=10)
     add_title = result.rename(columns={0:title}) #제목 index으로 변경
     csv = convert_df(add_title)
@@ -64,6 +63,7 @@ elif system == '시장 금리 스크래핑':
     MarketRateScrapping()
 elif system == 'BackTesing':
     st.markdown("https: // kernc.github.io / backtesting.py /")
+
     # import matplotlib
     #
     # # Use a backend that doesn't display the plot to the user

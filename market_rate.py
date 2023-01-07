@@ -110,17 +110,30 @@ def MarketRateScrapping():
     # Default: ColumnsAutoSizeMode.NO_AUTOSIZE
     AgGrid(df,height=400,columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS)
 
-
-
     # 표 수정하기
     # grid_return = AgGrid(df, editable=True)
     # new_df = grid_return['data']
     # AgGrid(new_df)
 
-    fig = px.line(df2,title='금융채(MOR) 금리 변화',labels={'value':'금리','index':'주차','variable':'금융채'})
+    fig = px.line(df2,title='금융채(MOR) 금리 변화(22년~)',labels={'value':'금리','index':'주차','variable':'금융채'})
+    st.plotly_chart(fig)
+
+    #20주 최근 data만 가져오기
+    new_df=df2.head(100)
+
+    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근20주)',labels={'value':'금리','index':'주차','variable':'금융채'})
     st.plotly_chart(fig)
 
 
+    #8주 최근 data만 가져오기
+    new_df=df2.head(40)
+
+    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근8주)',labels={'value':'금리','index':'주차','variable':'금융채'})
+    st.plotly_chart(fig)
 
 
+    #4주 최근 data만 가져오기
+    new_df=df2.head(20)
 
+    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근4주)',labels={'value':'금리','index':'주차','variable':'금융채'})
+    st.plotly_chart(fig)
