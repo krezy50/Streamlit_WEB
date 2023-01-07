@@ -121,19 +121,19 @@ def MarketRateScrapping():
     #20주 최근 data만 가져오기
     new_df=df2.head(100)
 
-    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근20주)',labels={'value':'금리','index':'주차','variable':'금융채'})
+    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근20주,5개월)',labels={'value':'금리','index':'주차','variable':'금융채'})
     st.plotly_chart(fig)
 
 
     #8주 최근 data만 가져오기
     new_df=df2.head(40)
 
-    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근8주)',labels={'value':'금리','index':'주차','variable':'금융채'})
+    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근8주,2개월)',labels={'value':'금리','index':'주차','variable':'금융채'})
     st.plotly_chart(fig)
 
 
     #4주 최근 data만 가져오기
     new_df=df2.head(20)
 
-    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근4주)',labels={'value':'금리','index':'주차','variable':'금융채'})
+    fig = px.line(new_df,title='금융채(MOR) 금리 변화(최근4주,1개월)',labels={'value':'금리','index':'주차','variable':'금융채'})
     st.plotly_chart(fig)
