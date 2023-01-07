@@ -4,3 +4,4 @@ plotly
 streamlit-aggrid
 finance-datareader
 openpyxl
+backtesting
