@@ -13,7 +13,6 @@ from control_excel import convert_df
 from backtesting import Backtest
 from stock_back_test import *
 import FinanceDataReader as fdr
-import matplotlib
 import streamlit.components.v1 as components
 
 
