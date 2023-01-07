@@ -44,7 +44,7 @@ def MarketRateScrapping():
     df2=df.drop(0) # 첫번째 행 제목 줄 삭제
     df3=df2.drop(df2.columns[0],axis=1)#공시일 삭제 (특정 열 삭제)
     df4 = df3.set_index('대상월')#기준 index 설정
-    # st.write(df4)
+    st.write(df4)
     df_reversed = df4[::-1] #순서 뒤집기 (금리 낮은 순에서 높은 순으로 바꾸기)
     # st.write(df_reversed)
 
@@ -61,7 +61,7 @@ def MarketRateScrapping():
     df3 = df2.drop(df2.columns[0],axis=1)#공시일 삭제
     # st.write(df3)
     df4 = df3.set_index(df3.columns[0])#기준 index 설정
-    # st.write(df4)
+    st.write(df4)
     df_reversed = df4[::-1] #순서 뒤집기 (금리 낮은 순에서 높은 순으로 바꾸기)
     # st.write(df_reversed)
 
