@@ -43,13 +43,13 @@ from ctypes import *
 lib = CDLL("/home/appuser/lib/libta_lib.so.0.0.0")
 # import library
 try:
-    import talib as ta
+    import talib
 except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--global-option=build_ext", "--global-option=-L/home/appuser/lib/", "--global-option=-I/home/appuser/include/", "ta-lib"])
 finally:
-    import talib as ta
+    import talib
 
-# import talib as ta
+import talib as ta
 
 # TA-lib 설치 방법 (Visual Studio Community 를 설치 후에 파워셀에서 컴파일 후 pip install 해야함)
 # https://github.com/minggnim/ta-lib
