@@ -5,9 +5,29 @@ from backtesting import Strategy
 from backtesting.lib import crossover
 
 import pandas as pd
-import talib as ta
+
 # import pandas_ta as ta
 
+import streamlit as st
+import requests
+import os
+import sys
+import subprocess
+
+# check if the library folder already exists, to avoid building everytime you load the pahe
+default_cwd = os.getcwd()
+# install
+os.system("pip install TA_Lib-0.4.25-cp311-cp311-win_amd64.whl")
+# back to the cwd
+os.chdir(default_cwd)
+sys.stdout.flush()
+
+# add the library to our current environment
+from ctypes import *
+
+lib = CDLL("/home/appuser/lib/libta_lib.so.0.0.0")
+
+import talib as ta
 # TA-lib 설치 방법 (Visual Studio Community 를 설치 후에 파워셀에서 컴파일 후 pip install 해야함)
 # https://github.com/minggnim/ta-lib
 # Download and Unzip ta-lib-0.4.0-msvc.zip
