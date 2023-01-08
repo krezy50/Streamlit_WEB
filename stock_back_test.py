@@ -5,6 +5,18 @@ from backtesting import Backtest, Strategy
 from backtesting.lib import crossover, resample_apply
 
 import pandas as pd
+import talib as ta
+
+# TA-lib 설치 방법 (Visual Studio Community 를 설치 후에 파워셀에서 컴파일 후 pip install 해야함)
+# https://github.com/minggnim/ta-lib
+# Download and Unzip ta-lib-0.4.0-msvc.zip
+# Move the Unzipped Folder ta-lib to C:\
+# Download and Install Visual Studio Community (2015 or later)
+# Remember to Select [Visual C++] Feature
+# Build TA-Lib Library
+# From Windows Start Menu, Start [VS2015 x64 Native Tools Command Prompt]
+# Move to C:\ta-lib\c\make\cdr\win32\msvc
+# Build the Library nmake
 
 # 전략 구현 - 1. Moving Average
 # 이동평균선이란 N일 동안의 주가를 평균한 값으로 이어진 선을 의미한다.
@@ -139,3 +151,24 @@ class DonchainStrategy(Strategy):
             self.buy()
         elif self.lower_dc[-1] >= price and not self.position.is_short:
             self.sell()
+
+def MACD(close, n1, n2, ns):
+    # n1-n2
+    macd, macdsignal, macdhist = ta.MACD(close, fastperiod=n1, slowperiod=n2, signalperiod=ns)
+    return macd, macdsignal
+
+class MACDCross(Strategy):
+
+    #파라미터 value 설정
+    short_term = 12
+    long_term = 26
+    sequence = 9
+
+    def init(self):
+        self.macd, self.macdsignal = self.I(MACD, self.data.Close, self.short_term, self.long_term, self.sequence)
+
+    def next(self):
+        if crossover(self.macd, self.macdsignal):
+            self.buy()
+        elif crossover(self.macdsignal, self.macd):
+            self.position.close()

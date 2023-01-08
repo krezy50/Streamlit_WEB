@@ -14,6 +14,7 @@ from backtesting import Backtest
 from stock_back_test import *
 import FinanceDataReader as fdr
 import streamlit.components.v1 as components
+import datetime
 
 
 with st.form("시스템 선택"):
@@ -50,27 +51,10 @@ elif system == 'BackTesing':
 
     st.markdown("https: // kernc.github.io / backtesting.py /")
 
-    stock_dict = {
-        "(Stock) Apple": "AAPL",
-        "(Stock) Microsoft": "MSFT",
-        "(Stock) Alphabet": "GOOG",
-        "(Stock) Facebook": "FB",
-        "(Stock) Samsung Electronics": "005930",
-        "(Stock) SK Hynics": "000660",
-        "(Stock) Naver": "035420",
-        "(Stock) Kakao": "035720",
-        "(Crypto) BTC/USD": "BTC/USD",
-        "(Crypto) ETH/USD": "ETH/USD",
-        "(Crypto) XRP/USD": "XRP/USD",
-        "(FX) USD/EUR": "USD/EUR",
-        "(FX) USD/JPY": "USD/JPY",
-        "(FX) USD/KRW": "USD/KRW",
-    }
+    selected_stock_value = st.text_input('Input STOCK CODE to use in backtest', value='SOXL')
 
-    selected_stock_key = st.selectbox('Select price data to use in backtest', list(stock_dict.keys()))
-    selected_stock_value = stock_dict[selected_stock_key]
-
-    price_df = fdr.DataReader(selected_stock_value, '2015-01-01')
+    start_date = st.date_input("Choice a Start Day",datetime.date(2015, 1, 1))
+    price_df = fdr.DataReader(selected_stock_value, start_date)
 
     # Set Strategy Parameters
 
@@ -78,7 +62,8 @@ elif system == 'BackTesing':
         "Moving Average Crossover": SmaCross,
         "Relative Strength Index": RSIStrategy,
         "Bollinger Band": BBStrategy,
-        "Donchain Channel": DonchainStrategy
+        "Donchain Channel": DonchainStrategy,
+        "MACD Cross":MACDCross,
     }
 
     # Select a Strategy
@@ -109,11 +94,21 @@ elif system == 'BackTesing':
         lookback_period = st.number_input("Set Donchain Channel Lookback Period", value=100)
         params['lookback_period'] = lookback_period
 
+    elif selected_strategy_key == "MACD Cross":
+        short_term = st.number_input("Set Short-term MACD Lookback Period", value=12)
+        long_term = st.number_input("Set Long-term MACD Lookback Period", value=26)
+        sequence = st.number_input("Set sequence MACD Lookback Period", value=9)
+        params['short_term'] = short_term
+        params['long_term'] = long_term
+        params['sequence'] = sequence
+
     cost = st.number_input("Set Transaction Cost (%)", value=0.1) * 0.01
 
+    st.write(price_df)
     #Backtest(주가정보, 전략, 진입 주식수, 거래세, 등)
     bt = Backtest(price_df, selected_strategy,
                   cash=1000000, commission=cost,
+                  trade_on_close=True,
                   exclusive_orders=True)
     #통계수치보기
     output = bt.run(**params)
