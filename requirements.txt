@@ -6,3 +6,4 @@ finance-datareader
 openpyxl
 backtesting
 bokeh==2.4.3
+ta-lib
