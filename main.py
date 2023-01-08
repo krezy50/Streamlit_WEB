@@ -11,9 +11,9 @@ from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
 
 from backtesting import Backtest
-from stock_back_test import *
+from stock_back_test import SmaCross,RSIStrategy,BBStrategy,DonchainStrategy,MACDCross
 import FinanceDataReader as fdr
-import streamlit.components.v1 as components
+# import streamlit.components.v1 as components
 import datetime
 
 
