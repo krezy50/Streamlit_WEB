@@ -1,12 +1,16 @@
-
-from backtesting.test import SMA
-
-from backtesting import Strategy
-from backtesting.lib import crossover
-
+import streamlit as st
 import pandas as pd
 
-# import talib as ta
+from backtesting.test import SMA
+from backtesting import Strategy
+from backtesting.lib import crossover
+from backtesting import Backtest
+
+import FinanceDataReader as fdr
+import datetime
+
+# import tulipy as ti (C 언어 기반으로 streamlit 에 설치불가)
+# import talib as ta (C 언어 기반으로 streamlit 에 설치불가)
 # TA-lib 설치 방법 (Visual Studio Community 를 설치 후에 파워셀에서 컴파일 후 pip install 해야함)
 # https://github.com/minggnim/ta-lib
 # Download and Unzip ta-lib-0.4.0-msvc.zip
@@ -158,26 +162,106 @@ class DonchainStrategy(Strategy):
         elif self.lower_dc[-1] >= price and not self.position.is_short:
             self.sell()
 
-# def MACD(close, n1, n2, ns):
-#     # n1-n2
-#     # TA-LIB 적용기준
-#     macd, macdsignal, macdhist = ta.MACD(close, fastperiod=n1, slowperiod=n2, signalperiod=ns)
-#
-#     return macd, macdsignal
-#
-# class MACDCross(Strategy):
-#
-#     #파라미터 value 설정
-#     short_term = 12
-#     long_term = 26
-#     sequence = 9
-#
-#     def init(self):
-#         close = self.data.Close
-#         self.macd, self.signalma = self.I(MACD, close, self.short_term, self.long_term, self.sequence)
-#
-#     def next(self):
-#         if crossover(self.macd, self.signalma):
-#             self.buy()
-#         elif crossover(self.signalma, self.macd):
-#             self.position.close()
+def MACD(close, n1, n2, ns):
+    # n1-n2
+    # TA-LIB 적용기준
+    macd, macdsignal, macdhist = ta.MACD(close, fastperiod=n1, slowperiod=n2, signalperiod=ns)
+
+    return macd, macdsignal
+
+class MACDCross(Strategy):
+
+    #파라미터 value 설정
+    short_term = 12
+    long_term = 26
+    sequence = 9
+
+    def init(self):
+        close = self.data.Close
+        self.macd, self.signalma = self.I(MACD, close, self.short_term, self.long_term, self.sequence)
+
+    def next(self):
+        if crossover(self.macd, self.signalma):
+            self.buy()
+        elif crossover(self.signalma, self.macd):
+            self.position.close()
+
+
+def Backtesting():
+    selected_stock_value = st.text_input('Input STOCK CODE to use in backtest', value='SOXL')
+
+    start_date = st.date_input("Choice a Start Day",datetime.date(2015, 1, 1))
+    price_df = fdr.DataReader(selected_stock_value, start_date)
+
+    # Set Strategy Parameters
+
+    strategy_dict = {
+        "Moving Average Crossover": SmaCross,
+        "Relative Strength Index": RSIStrategy,
+        "Bollinger Band": BBStrategy,
+        "Donchain Channel": DonchainStrategy,
+        "MACD Cross":MACDCross,
+    }
+
+    # Select a Strategy
+    selected_strategy_key = st.selectbox('Select a strategy', list(strategy_dict.keys()))
+    selected_strategy = strategy_dict[selected_strategy_key]
+
+    params = dict()
+
+    if selected_strategy_key == "Moving Average Crossover":
+        short_term = st.number_input("Set Short-term Moving Average Lookback Period", value=10)
+        long_term = st.number_input("Set Long-term Moving Average Lookback Period", value=20)
+        params['short_term'] = short_term
+        params['long_term'] = long_term
+
+    elif selected_strategy_key == "Relative Strength Index":
+        lookback_period = st.number_input("Set RSI Lookback Period", value=14)
+        buy_level = st.number_input("Set RSI Buy Level", value=50)
+        sell_level = st.number_input("Set RSI Sell Level", value=50)
+        params['lookback_period'] = lookback_period
+        params['buy_level'] = buy_level
+        params['sell_level'] = sell_level
+
+    elif selected_strategy_key == "Bollinger Band":
+        lookback_period = st.number_input("Set Bollinger Band Lookback Period", value=20)
+        params['lookback_period'] = lookback_period
+
+    elif selected_strategy_key == "Donchain Channel":
+        lookback_period = st.number_input("Set Donchain Channel Lookback Period", value=100)
+        params['lookback_period'] = lookback_period
+
+    elif selected_strategy_key == "MACD Cross":
+        short_term = st.number_input("Set Short-term MACD Lookback Period", value=12)
+        long_term = st.number_input("Set Long-term MACD Lookback Period", value=26)
+        sequence = st.number_input("Set sequence MACD Lookback Period", value=9)
+        params['short_term'] = short_term
+        params['long_term'] = long_term
+        params['sequence'] = sequence
+
+    cost = st.number_input("Set Transaction Cost (%)", value=0.1) * 0.01
+
+    st.write(price_df)
+    #Backtest(주가정보, 전략, 진입 주식수, 거래세, 등)
+    bt = Backtest(price_df, selected_strategy,
+                  cash=1000000, commission=cost,
+                  trade_on_close=True,
+                  exclusive_orders=True)
+    #통계수치보기
+    output = bt.run(**params)
+    # output = bt.run()
+
+
+    #그래프 보기
+    output_df = pd.DataFrame(output)
+    st.dataframe(output_df[:-2], height=800)
+
+    # 그래프 에러 개선
+    # pip install bokeh==2.4.3
+    # https://github.com/kernc/backtesting.py/issues/803
+    # https://stackoverflow.com/questions/74334910/backtesting-py-ploting-function-not-working
+
+    bt.plot(open_browser=False, filename="backtest_plot")
+    with open("backtest_plot.html", "r", encoding='utf-8') as f:
+        plot_html = f.read()
+    st.components.v1.html(plot_html, height=1000)
