@@ -162,7 +162,9 @@ class DonchainStrategy(Strategy):
 
 def MACD(close, n1, n2, ns):
     # n1-n2
+    # TA-LIB 적용기준
     macd, macdsignal, macdhist = ta.MACD(close, fastperiod=n1, slowperiod=n2, signalperiod=ns)
+
     return macd, macdsignal
 
 class MACDCross(Strategy):
@@ -173,10 +175,11 @@ class MACDCross(Strategy):
     sequence = 9
 
     def init(self):
-        self.macd, self.macdsignal = self.I(MACD, self.data.Close, self.short_term, self.long_term, self.sequence)
+        close = self.data.Close
+        self.macd, self.signalma = self.I(MACD, close, self.short_term, self.long_term, self.sequence)
 
     def next(self):
-        if crossover(self.macd, self.macdsignal):
+        if crossover(self.macd, self.signalma):
             self.buy()
-        elif crossover(self.macdsignal, self.macd):
+        elif crossover(self.signalma, self.macd):
             self.position.close()
