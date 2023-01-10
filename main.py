@@ -11,7 +11,7 @@ from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
 
 from backtesting import Backtest
-from stock_back_test import SmaCross,RSIStrategy,BBStrategy,DonchainStrategy,MACDCross
+from stock_back_test import SmaCross,RSIStrategy,BBStrategy,DonchainStrategy
 import FinanceDataReader as fdr
 import datetime
 
@@ -62,7 +62,7 @@ elif system == 'BackTesing':
         "Relative Strength Index": RSIStrategy,
         "Bollinger Band": BBStrategy,
         "Donchain Channel": DonchainStrategy,
-        "MACD Cross":MACDCross,
+        # "MACD Cross":MACDCross,
     }
 
     # Select a Strategy
@@ -93,13 +93,13 @@ elif system == 'BackTesing':
         lookback_period = st.number_input("Set Donchain Channel Lookback Period", value=100)
         params['lookback_period'] = lookback_period
 
-    elif selected_strategy_key == "MACD Cross":
-        short_term = st.number_input("Set Short-term MACD Lookback Period", value=12)
-        long_term = st.number_input("Set Long-term MACD Lookback Period", value=26)
-        sequence = st.number_input("Set sequence MACD Lookback Period", value=9)
-        params['short_term'] = short_term
-        params['long_term'] = long_term
-        params['sequence'] = sequence
+    # elif selected_strategy_key == "MACD Cross":
+    #     short_term = st.number_input("Set Short-term MACD Lookback Period", value=12)
+    #     long_term = st.number_input("Set Long-term MACD Lookback Period", value=26)
+    #     sequence = st.number_input("Set sequence MACD Lookback Period", value=9)
+    #     params['short_term'] = short_term
+    #     params['long_term'] = long_term
+    #     params['sequence'] = sequence
 
     cost = st.number_input("Set Transaction Cost (%)", value=0.1) * 0.01
 

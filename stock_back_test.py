@@ -6,9 +6,7 @@ from backtesting.lib import crossover
 
 import pandas as pd
 
-
-
-import talib as ta
+# import talib as ta
 # TA-lib 설치 방법 (Visual Studio Community 를 설치 후에 파워셀에서 컴파일 후 pip install 해야함)
 # https://github.com/minggnim/ta-lib
 # Download and Unzip ta-lib-0.4.0-msvc.zip
@@ -160,26 +158,26 @@ class DonchainStrategy(Strategy):
         elif self.lower_dc[-1] >= price and not self.position.is_short:
             self.sell()
 
-def MACD(close, n1, n2, ns):
-    # n1-n2
-    # TA-LIB 적용기준
-    macd, macdsignal, macdhist = ta.MACD(close, fastperiod=n1, slowperiod=n2, signalperiod=ns)
-
-    return macd, macdsignal
-
-class MACDCross(Strategy):
-
-    #파라미터 value 설정
-    short_term = 12
-    long_term = 26
-    sequence = 9
-
-    def init(self):
-        close = self.data.Close
-        self.macd, self.signalma = self.I(MACD, close, self.short_term, self.long_term, self.sequence)
-
-    def next(self):
-        if crossover(self.macd, self.signalma):
-            self.buy()
-        elif crossover(self.signalma, self.macd):
-            self.position.close()
+# def MACD(close, n1, n2, ns):
+#     # n1-n2
+#     # TA-LIB 적용기준
+#     macd, macdsignal, macdhist = ta.MACD(close, fastperiod=n1, slowperiod=n2, signalperiod=ns)
+#
+#     return macd, macdsignal
+#
+# class MACDCross(Strategy):
+#
+#     #파라미터 value 설정
+#     short_term = 12
+#     long_term = 26
+#     sequence = 9
+#
+#     def init(self):
+#         close = self.data.Close
+#         self.macd, self.signalma = self.I(MACD, close, self.short_term, self.long_term, self.sequence)
+#
+#     def next(self):
+#         if crossover(self.macd, self.signalma):
+#             self.buy()
+#         elif crossover(self.signalma, self.macd):
+#             self.position.close()
