@@ -9,17 +9,14 @@ import pandas as pd
 from rental_investment_calculator import RentalInvestmentCalculator #임대 수익 계산기
 from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
-
-
-from stock_back_test import Backtesting
-
-
+from backtesting_straregy import Backtesting
+from backtrader_straregy import Backtrader
 
 
 with st.form("시스템 선택"):
     st.header("Python projects of 502")
 
-    system=st.radio("Choice a project", ('임대 수익률 계산기', '시장 금리 스크래핑','BackTesing'))
+    system=st.radio("Choice a project", ('임대 수익률 계산기', '시장 금리 스크래핑','BackTesing','Backtrader'))
     submitted = st.form_submit_button("Submit")
 
 if system == '임대 수익률 계산기':
@@ -48,5 +45,10 @@ elif system == '시장 금리 스크래핑':
 
 elif system == 'BackTesing':
 
-    st.markdown("https: // kernc.github.io / backtesting.py /")
+    st.markdown("https://kernc.github.io/backtesting.py/")
     Backtesting()
+
+elif system == 'Backtrader':
+
+    st.markdown("https://www.backtrader.com/")
+    Backtrader()
