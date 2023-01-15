@@ -8,4 +8,3 @@ backtesting
 bokeh==2.4.3
 backtrader
 matplotlib
-blankly

@@ -99,7 +99,7 @@ def MarketRateScrapping():
     st.plotly_chart(fig)
 
     #엑셀 : 금융채 data 차트 만들기
-    df=pd.read_csv("./data/MOR.csv",encoding='cp949')
+    df=pd.read_csv("data/MOR.csv", encoding='cp949')
     df2=df.set_index(df.columns[0])
     # st.write(df2)
 
