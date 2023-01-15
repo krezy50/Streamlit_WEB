@@ -48,7 +48,12 @@ elif system == 'BackTesing':
     st.markdown("https://kernc.github.io/backtesting.py/")
     Backtesting()
 
-elif system == 'Backtrader':
+# elif system == 'Backtrader':
+#
+#     st.markdown("https://www.backtrader.com/")
+#     Backtrader()
 
-    st.markdown("https://www.backtrader.com/")
-    Backtrader()
+elif system == 'Blankly':
+
+    st.markdown("https://package.blankly.finance/")
+
