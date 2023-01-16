@@ -10,9 +10,7 @@ from rental_investment_calculator import RentalInvestmentCalculator #임대 수�
 from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
 from backtesting_straregy import Backtesting
-import finterstellar as fs
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 from pandas_datareader import data as pdr
 import yfinance as yf
 
