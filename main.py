@@ -10,11 +10,16 @@ from rental_investment_calculator import RentalInvestmentCalculator #임대 수�
 from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
 from backtesting_straregy import Backtesting
+import finterstellar as fs
+import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+from pandas_datareader import data as pdr
+import yfinance as yf
 
 with st.form("시스템 선택"):
     st.header("Python projects of 502")
 
-    system=st.radio("Choice a project", ('임대 수익률 계산기', '시장 금리 스크래핑','BackTesing','Blankly'))
+    system=st.radio("Choice a project", ('임대 수익률 계산기', '시장 금리 스크래핑','BackTesing 예제','파이썬 증권데이터 분석'))
     submitted = st.form_submit_button("Submit")
 
 if system == '임대 수익률 계산기':
@@ -41,7 +46,7 @@ elif system == '시장 금리 스크래핑':
 
     MarketRateScrapping()
 
-elif system == 'BackTesing':
+elif system == 'BackTesing 예제':
 
     st.markdown("https://kernc.github.io/backtesting.py/")
     Backtesting()
@@ -51,6 +56,33 @@ elif system == 'BackTesing':
 #     st.markdown("https://www.backtrader.com/")
 #     Backtrader()
 
-elif system == 'Blankly':
+elif system == '파이썬 증권데이터 분석':
 
-    st.markdown("https://package.blankly.finance/")
+    # st.markdown("일간 변동률로 주가 비교하기")
+    st.write("일간 변동률로 주가 비교하기",
+                "오늘변동률 = ((오늘종가- 어제종가)/어제종가)*100 : 주가가 상이한 종목별을 비교할때 이용"
+                "일간 변동률 누적곱 구하여 전체적인 변동률을 비교할수 있다. cumprod()함수 활용 ")
+
+    stock1 = st.text_input("비교 종목 1: ",value = 'AAPL')
+    stock2 = st.text_input("비교 종목 2: ",value = 'MSFT')
+    date = st.text_input("시작날짜 입력",value = '2018-05-04')
+    yf.pdr_override()
+
+    first = pdr.get_data_yahoo(stock1,start=date)
+    first_dpc = (first['Close']-first['Close'].shift(1))/first['Close'].shift(1)*100
+    first_dpc.iloc[0]=0
+    first_dpc_cp = ((100+first_dpc)/100).cumprod()*100-100 #일간 변동률 누적곱 계산
+
+    second = pdr.get_data_yahoo(stock2,start=date)
+    second_dpc = (second['Close']-second['Close'].shift(1))/second['Close'].shift(1)*100
+    second_dpc.iloc[0]=0
+    second_dpc_cp = ((100+second_dpc)/100).cumprod()*100-100 #일간 변동률 누적곱 계산
+
+    plt.plot(first.index,first_dpc_cp,'b',label=stock1)
+    plt.plot(second.index, second_dpc_cp, 'r--', label=stock2)
+    plt.ylabel('Change %')
+    plt.grid(True)
+    plt.legend(loc='best')
+    figure=plt.show()
+    st.pyplot(figure)
+
