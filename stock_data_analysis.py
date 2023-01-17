@@ -45,20 +45,23 @@ def MDDAnalysis():
     #rolling 함수는 시리즈에서 윈도우 크기에 해당하는 개수만큼 데이터를 추출하여 집계함수에 해당하는 연산을 실시
     #집계함수로는 최대값,평균값,최소값을사용
 
-    kospi = pdr.get_data_yahoo('^KS11','2004-01-04')
+    stock = st.text_input("종목", value='^KS11')
+    date = st.text_input("시작날짜 입력", value='2004-01-04')
+
+    temp = pdr.get_data_yahoo(stock,date)
 
     window = 252 #1년 단위의 window설정
-    peak = kospi['Adj Close'].rolling(window,min_periods=1).max()
-    drawdown = kospi['Adj Close']/peak - 1.0 #최고치(peak) 대비 현재 KOSPI종가가 얼마나 하락했는지를 구한다.
+    peak = temp['Adj Close'].rolling(window,min_periods=1).max()
+    drawdown = temp['Adj Close']/peak - 1.0 #최고치(peak) 대비 현재 KOSPI종가가 얼마나 하락했는지를 구한다.
     max_dd = drawdown.rolling(window,min_periods=1).min() #1년 기간단위로 최저치 MDD를 구한다.
 
     plt.figure(figsize=(9,7))
     plt.subplot(211)
-    kospi['Close'].plot(label='KOSPI', title='KOSPI MDD',grid=True,legend=True)
+    temp['Close'].plot(label=f'{stock}', title='KOSPI MDD',grid=True,legend=True)
     plt.subplot(212)
-    drawdown.plot(c='blue',label='KOSPI DD',grid=True,legend=True)
-    max_dd.plot(c='red',label='KOSPI MDD',grid=True,legend=True)
+    drawdown.plot(c='blue',label=f'{stock} DD',grid=True,legend=True)
+    max_dd.plot(c='red',label=f'{stock} MDD',grid=True,legend=True)
     figure = plt.show()
     st.pyplot(figure)
-    st.write(max_dd.min())
-    st.write(max_dd[max_dd==max_dd.min()])
+    st.write('max_dd(MDD):',format(max_dd.min()))
+    st.write('MDD 기간',max_dd[max_dd==max_dd.min()])
