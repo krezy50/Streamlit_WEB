@@ -10,7 +10,7 @@ from rental_investment_calculator import RentalInvestmentCalculator #임대 수�
 from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
 from backtesting_straregy import Backtesting
-from stock_data_analysis import CompareStockAnalysis,MDDAnalysis
+from stock_data_analysis import CompareStockAnalysis,MDDAnalysis,RelationAnalysis
 
 with st.form("시스템 선택"):
     st.header("Python projects of 502")
@@ -56,3 +56,4 @@ elif system == '파이썬 증권데이터 분석':
 
     CompareStockAnalysis()
     MDDAnalysis()
+    RelationAnalysis()

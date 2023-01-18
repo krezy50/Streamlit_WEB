@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import datetime
 
 
 import matplotlib.pyplot as plt
@@ -65,3 +66,28 @@ def MDDAnalysis():
     st.pyplot(figure)
     st.write('max_dd(MDD):',format(max_dd.min()))
     st.write('MDD 기간',max_dd[max_dd==max_dd.min()])
+
+def RelationAnalysis():
+
+    st.write("회귀분석은 데이터의 상관관계를 분석하는데 쓰이는 통계분석방법이다. "
+             "회귀분석은 회귀목형을 설정한 후 실제로 관측된 표본을 대상으로 회귀 모형의 계수를 추정한다. "
+             "독립변수라고부리는 하나 이상의 변수와 종속변수라 불리는 하나의 변수 간의 관계를 나타내는 회귀식이 도출되면, "
+             "임의의 독립변수에 대하여 종속변숫값을 추측해 볼수 있는데, 이를 예측이라고한다.")
+    stock1 = st.text_input("비교 종목 1: ", value='^DJI')
+    stock2 = st.text_input("비교 종목 2: ", value='^KS11')
+    date = st.date_input("시작날짜 입력", datetime.date(2000, 1, 4))
+
+    fdata1 = pdr.get_data_yahoo(stock1,date)
+    fdata2 = pdr.get_data_yahoo(stock2,date)
+
+    d = (fdata1.Close / fdata1.Close.loc[format(date)]) * 100 # 지수화
+    #시작날짜기준으로 지수를 나눠 100을 곱한다. 두 주식간의 상승률을 비교할수 있다.
+    k = (fdata2.Close / fdata2.Close.loc[format(date)]) * 100 # 지수화
+
+    plt.figure(figsize=(9,5))
+    plt.plot(d.index,d,'r--',label=stock1)
+    plt.plot(k.index,k,'b',label=stock2)
+    plt.grid(True)
+    plt.legend(loc='best')
+    figure = plt.show()
+    st.pyplot(figure)
