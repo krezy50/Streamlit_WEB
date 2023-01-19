@@ -91,3 +91,21 @@ def RelationAnalysis():
     plt.legend(loc='best')
     figure = plt.show()
     st.pyplot(figure)
+
+    st.write("산점도란 독립변수x와 종속변수y의 상관관계를 확인할때 쓰는 그래프다. 가로축은 독립변수x를, 세로축은 종속변수를 나타낸다."
+             "x,y 개수는 동일해야함. y=x인 직선형태에 가까울수로 직접적인 관계가 있다.")
+
+    # st.write(fdata1['Close'],fdata2['Close'])
+    # st.write(len(fdata1),len(fdata2))
+    df = pd.DataFrame({f'{stock1}':fdata1['Close'],f'{stock2}':fdata2['Close']}) #합치기
+    df = df.fillna(method='bfill') #bfill(backward fill), ffill(forward fill)
+    df = df.fillna(method='ffill')
+    #dropna()은 nan 있는 행을 삭제
+
+    plt.figure(figsize=(7,7))
+    plt.scatter(df[f'{stock1}'],df[f'{stock2}'],marker='.')
+    plt.xlabel(f'{stock1}')
+    plt.ylabel(f'{stock2}')
+    figure = plt.show()
+    st.pyplot(figure)
+
