@@ -5,6 +5,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 from pandas_datareader import data as pdr
+from scipy import stats
 import yfinance as yf
 yf.pdr_override()
 
@@ -15,8 +16,8 @@ def CompareStockAnalysis():
              "오늘변동률 = ((오늘종가- 어제종가)/어제종가)*100 : 주가가 상이한 종목별을 비교할때 이용"
              "일간 변동률 누적곱 구하여 전체적인 변동률을 비교할수 있다. cumprod()함수 활용 ")
 
-    stock1 = st.text_input("비교 종목 1: ", value='AAPL')
-    stock2 = st.text_input("비교 종목 2: ", value='MSFT')
+    stock1 = st.text_input("비교 종목 : ", value='AAPL')
+    stock2 = st.text_input("비교 종목 : ", value='MSFT')
     date = st.text_input("시작날짜 입력", value='2018-05-04')
 
 
@@ -73,16 +74,20 @@ def RelationAnalysis():
              "회귀분석은 회귀목형을 설정한 후 실제로 관측된 표본을 대상으로 회귀 모형의 계수를 추정한다. "
              "독립변수라고부리는 하나 이상의 변수와 종속변수라 불리는 하나의 변수 간의 관계를 나타내는 회귀식이 도출되면, "
              "임의의 독립변수에 대하여 종속변숫값을 추측해 볼수 있는데, 이를 예측이라고한다.")
-    stock1 = st.text_input("비교 종목 1: ", value='^DJI')
-    stock2 = st.text_input("비교 종목 2: ", value='^KS11')
-    date = st.date_input("시작날짜 입력", datetime.date(2000, 1, 4))
+    stock1 = st.text_input("비교 종목 1: ", value='AAPL')
+    stock2 = st.text_input("비교 종목 2: ", value='ABBV')
+
+    date = st.date_input("시작날짜 입력", datetime.date(2013, 1, 2))
 
     fdata1 = pdr.get_data_yahoo(stock1,date)
     fdata2 = pdr.get_data_yahoo(stock2,date)
 
-    d = (fdata1.Close / fdata1.Close.loc[format(date)]) * 100 # 지수화
+    fdata1.index = fdata1.index.date #index 시간제거
+    fdata2.index = fdata2.index.date #index 시간제거
+
+    d = (fdata1.Close / fdata1.Close.iloc[0]) * 100 # 지수화
     #시작날짜기준으로 지수를 나눠 100을 곱한다. 두 주식간의 상승률을 비교할수 있다.
-    k = (fdata2.Close / fdata2.Close.loc[format(date)]) * 100 # 지수화
+    k = (fdata2.Close / fdata2.Close.iloc[0]) * 100 # 지수화
 
     plt.figure(figsize=(9,5))
     plt.plot(d.index,d,'r--',label=stock1)
@@ -102,10 +107,39 @@ def RelationAnalysis():
     df = df.fillna(method='ffill')
     #dropna()은 nan 있는 행을 삭제
 
+    # plt.figure(figsize=(7,7))
+    # plt.scatter(df[f'{stock1}'],df[f'{stock2}'],marker='.')
+    # plt.xlabel(f'{stock1}')
+    # plt.ylabel(f'{stock2}')
+    # figure = plt.show()
+    # st.pyplot(figure)
+
+
+    #LinearRegressionModel
+    st.write("회귀모델이란 연속적인 Y와 이 Y의 원인이 되는 X간의 관계를 추정하는 관계식을 의미"
+             "실제로 데이터 값에는 측정상의 한계로 인한 잡음이 존재하기 때문에 정확한 관계식을 표현하는 확률변수인 오차항을 두게된다.")
+
+    regr = stats.linregress(df[f'{stock1}'],df[f'{stock2}'])
+    st.write(regr)
+    st.write("slope : 기울기, intercept : 절편, rvalue : r값(상관계수), pvalue : p값, stderr : 표준편차"
+             "stats로 생성한 모델을 이용하면 선형회귀식을 구할수 있다.")
+
+    r_value = df[f'{stock1}'].corr(df[f'{stock2}'])
+    r_squared = r_value**2
+    st.write("상관계수 : ",r_value)
+    st.write("결정계수는 관측된 데이터에서 추정한 회귀선이 실제로 데이터를 어느정도 설명하는지를 나타내는 계수로 "
+             "두변수의 상관관계정도를 나타내는 상관계수를 제곱한 값이다. "
+             "결정계수가 1이면 모든 표본관측치가 추정된 회귀선 상에만 있다는 의미다. 즉 추정된 회귀선이 변수간의 관계를 완벽히설명"
+             "반면에 0이면 추정된 회귀선이 변수사이의 관계를 전혀 설명하지 못한다는 의미다.")
+    st.write("결정계수 : ", r_squared)
+
+    regr_line = f'Y = {regr.slope:.2f} * X + {regr.intercept:.2f}'
     plt.figure(figsize=(7,7))
-    plt.scatter(df[f'{stock1}'],df[f'{stock2}'],marker='.')
+    plt.plot(df[f'{stock1}'],df[f'{stock2}'],'.')
+    plt.plot(df[f'{stock1}'],regr.slope * df[f'{stock1}']+regr.intercept,'r')
+    plt.legend([f'{stock1}x{stock2}',regr_line])
+    plt.title(f'{stock1}x{stock2} (R={regr.rvalue:.2f})')
     plt.xlabel(f'{stock1}')
     plt.ylabel(f'{stock2}')
     figure = plt.show()
     st.pyplot(figure)
-
