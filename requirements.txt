@@ -10,3 +10,4 @@ backtrader
 matplotlib
 pandas_datareader
 yfinance
+scipy
