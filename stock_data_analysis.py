@@ -6,6 +6,7 @@ import datetime
 import matplotlib.pyplot as plt
 from pandas_datareader import data as pdr
 from scipy import stats
+import numpy as np
 import yfinance as yf
 yf.pdr_override()
 
@@ -141,5 +142,73 @@ def RelationAnalysis():
     plt.title(f'{stock1}x{stock2} (R={regr.rvalue:.2f})')
     plt.xlabel(f'{stock1}')
     plt.ylabel(f'{stock2}')
+    figure = plt.show()
+    st.pyplot(figure)
+
+
+    st.write("트레이딩 전략 구현")
+    #시총상위 종목으로 효율적 투자선 구하기
+    s1 = st.text_input("비교 종목1: ", value='AAPL')
+    s2 = st.text_input("비교 종목2: ", value='ABBV')
+    s3 = st.text_input("비교 종목3: ", value='SOXL')
+    s4 = st.text_input("비교 종목4: ", value='NAIL')
+
+    date = st.date_input("시작날짜", datetime.date(2013, 1, 2))
+
+    f1 = pdr.get_data_yahoo(s1,date)
+    f2 = pdr.get_data_yahoo(s2,date)
+    f3 = pdr.get_data_yahoo(s3,date)
+    f4 = pdr.get_data_yahoo(s4,date)
+
+    f1.index = f1.index.date #index 시간제거
+    f2.index = f2.index.date #index 시간제거
+    f3.index = f3.index.date #index 시간제거
+    f4.index = f4.index.date #index 시간제거
+
+    df = pd.DataFrame({f'{s1}': f1['Close'], f'{s2}': f2['Close'], f'{s3}': f3['Close'], f'{s4}': f4['Close']})  # 합치기
+    df = df.fillna(method='bfill')  # bfill(backward fill), ffill(forward fill)
+    df = df.fillna(method='ffill')
+
+    daily_ret = df.pct_change() #일간 변동률
+    annual_ret = daily_ret.mean()*252 #연간수익률
+    daily_cov = daily_ret.cov() # 일간 변동률의 공분산
+    annual_cov = daily_cov*252 #연간 공분산
+
+    port_ret =[]
+    port_risk =[]
+    port_weights=[]
+
+    st.write("몬테카를로 시뮬레이션 : 매우 많은 난수를 이용해 함수의 값을 확률적으로 계산하는 것, "
+             "4개 종목의 비중을 난수를 이용해서 20000개의 포트폴리오 생성하여 수익률과 리스크를 분석 ")
+
+    stock = [f'{s1}',f'{s2}',f'{s3}',f'{s4}']
+
+    for _ in range(20000): #반복횟수를 사용할일이 없을 경우 _
+        weights = np.random.random(len(stock))  # 4개의 랜덤숫자로 구성된 배열을 생성
+        weights /= np.sum(weights) #4개의 랜덤숫자를 랜덤숫자 총합으로 나눠 4종목의 비중의합이 1이 되도록 조정
+
+        # 랜덤하게 생성한종목별 비중 배열과 종목별 연간수익률을 곱해 해당 포트폴리오 전체 수익률을 구한다.
+        returns = np.dot(weights,annual_ret)
+
+        # 종목별 연간 공분산과 종목별 비중 배열을 곱한뒤 이를 다시 종목별 비중의 전치로 곱한다.
+        # 이렇게 구한 결과값의 제곱근 sqrt() 구하면 해당 포트폴리오의 전체 리스크를 구할수 있다.
+        risk = np.sqrt(np.dot(weights.T,np.dot(annual_cov,weights)))
+
+        port_ret.append(returns)
+        port_risk.append(risk)
+        port_weights.append(weights)
+
+    portfolio = {'Returns':port_ret, 'Risk':port_risk}
+
+    for i,s in enumerate(stock): #각 종목별로 비중 입력
+        portfolio[s]=[weights[i] for weights in port_weights]
+
+    df = pd.DataFrame(portfolio)
+    df = df[['Returns','Risk'] + [s for s in stock]]
+
+    df.plot.scatter(x='Risk',y='Returns',figsize=(10,7),grid=True)
+    plt.title('Efficient Frontier')
+    plt.xlabel('Risk')
+    plt.ylabel('Expected Returns')
     figure = plt.show()
     st.pyplot(figure)
