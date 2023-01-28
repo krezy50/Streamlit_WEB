@@ -10,7 +10,7 @@ from rental_investment_calculator import RentalInvestmentCalculator #임대 수�
 from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
 from backtesting_straregy import Backtesting
-from stock_data_analysis import CompareStockAnalysis,MDDAnalysis,RelationAnalysis,MonteCarloSimulation,SharpRatioSimulation
+from stock_data_analysis import CompareStockAnalysis,MDDAnalysis,RelationAnalysis,MonteCarloSimulation,SharpRatioSimulation,BollingerBandAnalysis
 
 
 with st.form("시스템 선택"):
@@ -26,7 +26,9 @@ if system == '파이썬 증권데이터 분석':
                                  'MDD 구하기',
                                  '주식간 상관관계분석',
                                  'Trading전략 - 몬테카를로 시뮬레이션',
-                                 'Trading전략 - 샤프지수 시뮬레이션')
+                                 'Trading전략 - 샤프지수 시뮬레이션',
+                                 'Trading전략 - 볼랜져밴드 지표분석'
+                                 )
                             )
 
     if selected in '주식 비교하기':
@@ -39,6 +41,8 @@ if system == '파이썬 증권데이터 분석':
         MonteCarloSimulation()
     elif selected in 'Trading전략 - 샤프지수 시뮬레이션':
         SharpRatioSimulation()
+    elif selected in 'Trading전략 - 볼랜져밴드 지표분석':
+        BollingerBandAnalysis()
 
 elif system == '임대 수익률 계산기':
     st.caption("Sidebar MENU 에서 관련 정보를 입력하세요.")

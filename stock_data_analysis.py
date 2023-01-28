@@ -231,7 +231,7 @@ def SharpRatioSimulation():
     s2 = st.text_input("포트폴리오 종목2: ", value='SOXL')
     s3 = st.text_input("포트폴리오 종목3: ", value='NAIL')
     s4 = st.text_input("포트폴리오 종목4: ", value='TQQQ')
-    s5 = st.text_input("포트폴리오 종목5: ", value='UPRO')
+    s5 = st.text_input("포트폴리오 종목5: ", value='AAPL')
 
     date = st.date_input("시작날짜", datetime.date(2010, 1, 2))
 
@@ -301,3 +301,173 @@ def SharpRatioSimulation():
 
     st.write("Max Sharp Portfolio",max_sharp)
     st.write("Min Risk Portfolio",min_risk)
+    
+def BollingerBandAnalysis():
+    
+    st.subheader("John Bollinger - 볼린저 밴드 투자기법 ")
+
+    #볼린저 밴드 설명
+    st.write(":moneybag:표준 볼린저 밴드 공식")
+
+    st.write("상단 볼린저 밴드 = 중간볼린저밴드 + (2 x 표준편차)")
+    st.write("상단 볼린저 밴드 = 종가의 20일 이동평균")
+    st.write("상단 볼린저 밴드 = 중간볼린저밴드 - (2 x 표준편차)")
+
+    st.write("주가가 볼린저 밴드 어디에 위치하는지를 나타내는 지료가 %b다. 상단밴드에 걸쳐있을때 1.0, 중가 0.5 하단 0.0")
+    st.write(":green[$ \%b = \dfrac{종가 - 하단 볼린저 밴드} {상단 볼린저 밴드 - 하단 볼린저 밴드}$]")
+
+    st.write(":moneybag:밴드폭은 상단 볼린저 밴드와 하단 볼린저 밴드 사이의 폭을 의미한다.")
+    st.write("밴드폭은 스퀴즈를 확인하는데 유용한 지표이다. 스퀴즈란 변동성이 극히 낮은 수준까지 떨어져 곧이어"
+             "변동성 증가가 발생할 것으로 예상되는 상황을 말한다. 볼린저가 저술한바에 따르면 밴드폭이"
+             "6개월 저점을 기록하는 것을 보고 스퀴즈를 파악할수 있다고 한다.")
+    st.write("밴드폭 산출 공식")
+    st.write(":green[$ 밴드폭 = \dfrac{상단 볼린저 밴드 - 하단 볼린저 밴드} {중간 볼린저 밴드}$]")
+    st.write("밴드폭은 또 다른 중요한 역활은 강력한 추세의 시작과 마지막을 포착하는 것이다."
+             "강력한 추세는 스퀴즈로부터 시작되는데 변동성이 커지면서 밴드폭 수치가 급격히 높아진다."
+             "이때 밴드폭이 넓어지면서 추세의 반대쪽에 있는 밴드는 추세 반대 방향으로 향한다.")
+
+    s1 = st.text_input("분석종목: ", value='AAPL')
+    date = st.date_input("시작날짜", datetime.date(2022, 6, 1))
+
+    st.subheader("추세 추종 매매기법")
+    st.write("추세 추종은 상승추세에 매수하고 하락추세에 매도하는 기법")
+    
+    #실제 코드
+    f1 = pdr.get_data_yahoo(s1,date)
+
+    f1.index = f1.index.date #index 시간제거
+
+    df = pd.DataFrame(f1)
+    df['MA20'] = df['Close'].rolling(window=20).mean()
+    df['stddev'] = df['Close'].rolling(window=20).std()
+    df['upper'] = df['MA20'] + (df['stddev'] * 2)
+    df['lower'] = df['MA20'] - (df['stddev'] * 2)
+    df['bandwidth'] = (df['upper'] - df['lower'] ) / df['MA20'] * 100
+    df['PB'] = (df['Close']- df['lower']) / (df['upper'] - df['lower'])
+    df = df[19:] #19번째까지 Nan이므로 삭제
+
+    # st.write(df)
+    df['TP'] = (df['High'] + df['Low'] + df['Close']) / 3
+    df['PMF'] = 0
+    df['NMF'] = 0
+
+    for i in range(len(df.Close) - 1):
+        if df.TP.values[i] < df.TP.values[i + 1]:  # i+1번째 가격이 i보다 높으면
+            df.PMF.values[i + 1] = df.TP.values[i + 1] * df.Volume.values[i + 1]  # 긍정적 현금흐름에 저장
+            df.NMF.values[i + 1] = 0
+        else:
+            df.NMF.values[i + 1] = df.TP.values[i + 1] * df.Volume.values[i + 1]  # 아니면 부정적 현금흐름에 저장
+            df.PMF.values[i + 1] = 0
+
+    df['MFR'] = df.PMF.rolling(window=10).sum() / df.NMF.rolling(window=10).sum()
+    df['MFI10'] = 100 - 100 / (1 + df['MFR'])
+
+
+    plt.figure(figsize=(9,10))
+    plt.subplot(3,1,1)
+    plt.plot(df.index,df['Close'],color='#0000ff',label='Close')
+    plt.plot(df.index,df['upper'],'r--',label='Upper Band')
+    plt.plot(df.index,df['MA20'],'k--',label='Moving average 20')
+    plt.plot(df.index,df['lower'],'c--',label='Lower Band')
+    plt.fill_between(df.index,df['upper'],df['lower'],color='0.9')
+    for i in range(len(df.Close)):
+        if df.PB.values[i] > 0.8 and df.MFI10.values[i] > 80:
+            plt.plot(df.index.values[i],df.Close.values[i],'r^')
+        elif df.PB.values[i] < 0.2 and df.MFI10.values[i] < 20:
+            plt.plot(df.index.values[i],df.Close.values[i],'bv')
+    plt.legend(loc='best')
+    plt.title(f"{s1} Bollinger Band (20 day, 2std)")
+
+    plt.subplot(3,1,2)
+    plt.plot(df.index,df['PB']*100,color='b',label='%B x 100')
+    plt.plot(df.index,df['MFI10'],'g--',label='MFI(10 days)')
+    plt.yticks([-20,0,20,40,60,80,100,120]) #y축을 20단위로 표시
+    for i in range(len(df.Close)):
+        if df.PB.values[i] > 0.8 and df.MFI10.values[i] > 80:
+            plt.plot(df.index.values[i],0,'r^')
+        elif df.PB.values[i] < 0.2 and df.MFI10.values[i] < 20:
+            plt.plot(df.index.values[i],0,'bv')
+    plt.grid(True)
+    plt.legend(loc='best')
+
+    plt.subplot(3, 1, 3)
+    plt.plot(df.index,df['bandwidth'],color='m',label='BandWidth')
+    plt.grid(True)
+    plt.legend(loc='best')
+
+    figure = plt.show()
+    st.pyplot(figure)
+
+
+
+    #추세추정 매매기법설명
+
+    st.write("상승 추세나 하락 추세의 시작을 단순히 %b 지표만 이용해서 주가가 볼린저 상/하단 밴드에 태그했는지여부"
+             "로만 판단하지 않는다. 현금흐름지표(MFI)나 일중강도(II) 같은 거래량 관련 지표를 함께 이용해서 확증이"
+             "이루어진 경우에만 매수/매도에 들아간다.")
+    st.write(":red[매수 : 주가가 상단밴드에 접근하며, 지표가 강세를 확증할 때만 매수 (%b가 0.8보다 크고, MFI가 80보다 클때)]")
+    st.write(":red[매수 : 주가가 하단밴드에 접근하며, 지표가 약세를 확증할 때만 매도(%b가 0.2보다 작고, MFI가 20보다 작을때)]")
+
+    st.write(":moneybag: Money Flow Index 현금흐름지표 : 가격과 거래량을 동시에 분석하므로 상대적으로 신뢰도가 더 높다.")
+    st.write("중심가격 = (일정기간의 고가+저가+종가) / 3")
+    st.write("현금흐름 = 중심가격 * 거래량")
+
+    st.write(":green[$ MFI = 100 - \Bigg( 100 \\div ( 1 + \dfrac{긍정적 현금흐름} {부정적 현금흐름}) \Bigg) $]")
+    st.write(":green[긍정적 현금흐름 = 중심가격이 전일보다 상승한 날들의 현금 흐름의 합]")
+    st.write(":green[부정적 현금흐름 = 중심가격이 전일보다 하락한 날들의 현금 흐름의 합]")
+
+    st.subheader("반전 매매기법")
+    st.write("주가가 반전하는 지점을 찾아내 매수/매도하는 기법")
+
+    # 위에 코드 이어서 작성
+    df['II'] = (2*df['Close'] - df['High'] - df['Low']) / (df['High']-df['Low']) * df['Volume'] #일중강도
+    df['IIP21'] = df['II'].rolling(window=21).sum() / df['Volume'].rolling(window=21).sum()*100 #일중강도율
+    df = df.dropna()
+
+    plt.figure(figsize=(9,10))
+    plt.subplot(3,1,1)
+    plt.title(f"{s1} Bollinger Band (20 day, 2std) - Reversals")
+    plt.plot(df.index,df['Close'],color='#0000ff',label='Close')
+    plt.plot(df.index,df['upper'],'r--',label='Upper Band')
+    plt.plot(df.index,df['MA20'],'k--',label='Moving average 20')
+    plt.plot(df.index,df['lower'],'c--',label='Lower Band')
+    plt.fill_between(df.index,df['upper'],df['lower'],color='0.9')
+    for i in range(0,len(df.Close)):
+        if df.PB.values[i] < 0.05 and df.IIP21.values[i] > 0:
+            plt.plot(df.index.values[i],df.Close.values[i],'r^')
+        elif df.PB.values[i] > 0.95  and df.IIP21.values[i] < 0:
+            plt.plot(df.index.values[i],df.Close.values[i],'bv')
+    plt.legend(loc='best')
+
+    plt.subplot(3,1,2)
+    plt.plot(df.index,df['PB'],'b',label='%b')
+    plt.grid(True)
+    plt.legend(loc='best')
+
+    plt.subplot(3, 1, 3)
+    plt.bar(df.index,df['IIP21'],color='g',label='II% 21day')
+    for i in range(len(df.Close)):
+        if df.PB.values[i] < 0.05 and df.IIP21.values[i] > 0:
+            plt.plot(df.index.values[i],0,'r^')
+        elif df.PB.values[i] > 0.95 and df.IIP21.values[i] < 0:
+            plt.plot(df.index.values[i],0,'bv')
+    plt.grid(True)
+    plt.legend(loc='best')
+
+    figure = plt.show()
+    st.pyplot(figure)
+
+    #반전매매기법 설명
+
+    st.write("주가가 하단 밴드를 여러 차례 태그하는 과정에서 강세 지표가 발생하면 매수하고, 주가가 상단 밴드를 여러차례 태그하는 과정에서"
+             "약세 지표가 발생하면 매도한다.")
+
+    st.write(":red[매수 : 주가가 하단 밴드부근에서 W형 패턴을 나타내고, 강세 지표가 확증할 때 매수(%b가 0.05보다 작고 일중강도율II%가 0보다 크면 매수]")
+    st.write(":red[매수 : 주가가 상단 밴드부근에서 일련의 주가태그가 일어나며, 약세 지표가 확증할 때 매도(%b가 0.95보다 크고 일중강도율II%가 0보다 작으면 매도]")
+    st.write(":moneybag: 일중강도는 데이빗 보스티언이 개발한 거래량지표 : 거래 범위에서 종가의 위치를 토대로 주식 종목의 "
+             "자금 흐름을 설명한다. 장이 끝나는 시점에서 트레이더들의 움직임을 나타내는데, 종가가 거래범위 천정권에서 형성되면 1,"
+             "중간에서 형성되면 0, 바닥권에서 형성되면 -1이 된다.")
+    st.write("21일 기간동안 II합을 21 기간동안의 거래량 합으로 나누어 표준화한 것이 일중 강도율II%이다.")
+    st.write(":green[$ 일중강도 = \dfrac{2 * 종가 - 고가 - 저가} {고가 - 저가} * 거래량  $]")
+    st.write(":green[$ 일중강도율 = \dfrac{일중강도의 21일 합} {거래량의 21일 합} * 100  $]")
+
