@@ -476,7 +476,7 @@ def BollingerBandAnalysis():
 def TradingforaLiving():
 
     st.subheader("알렉산더 엘더 - 주식시장에서 살아남는 심리투자 법칙")
-    st.write("삼중창 매매 시스템 - 추세 추종과 역추세 매매법을 함께 사용하며, 세 단계의 참을 거쳐 더 정확한 매매 시점을 찾도록 구성되어 있다.")
+    st.write("삼중창 매매 시스템 - 추세 추종과 역추세 매매법을 함께 사용하며, 세 단계의 창을 거쳐 더 정확한 매매 시점을 찾도록 구성되어 있다.")
 
 
     s1 = st.text_input("분석종목: ", value='SOXL')
