@@ -4,6 +4,8 @@ import datetime
 
 
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from mpl_finance import candlestick_ohlc
 from pandas_datareader import data as pdr
 from scipy import stats
 import numpy as np
@@ -470,4 +472,50 @@ def BollingerBandAnalysis():
     st.write("21일 기간동안 II합을 21 기간동안의 거래량 합으로 나누어 표준화한 것이 일중 강도율II%이다.")
     st.write(":green[$ 일중강도 = \dfrac{2 * 종가 - 고가 - 저가} {고가 - 저가} * 거래량  $]")
     st.write(":green[$ 일중강도율 = \dfrac{일중강도의 21일 합} {거래량의 21일 합} * 100  $]")
+
+def TradingforaLiving():
+
+    st.subheader("알렉산더 엘더 - 주식시장에서 살아남는 심리투자 법칙")
+    st.write("삼중창 매매 시스템 - 추세 추종과 역추세 매매법을 함께 사용하며, 세 단계의 참을 거쳐 더 정확한 매매 시점을 찾도록 구성되어 있다.")
+    st.write(":moneybag:첫번째 창")
+
+    s1 = st.text_input("분석종목: ", value='AAPL')
+    date = st.date_input("시작날짜", datetime.date(2022, 1, 2))
+
+    # 실제 코드
+    f1 = pdr.get_data_yahoo(s1, date)
+
+    f1.index = f1.index.date  # index 시간제거
+    df = pd.DataFrame(f1)
+
+    ema60 = df.Close.ewm(span=60).mean() #종가의 12주 지수 이동평균
+    ema130 = df.Close.ewm(span=130).mean() #종가의 26주 지수 이동평균
+    macd = ema60 - ema130 #macd 선
+    signal = macd.ewm(span=45).mean() #신호선 (macd의 9주 지수 이동평균)
+    macdhist = macd - signal
+
+    df = df.assign(ema130=ema130, ema60=ema60,macd=macd, signal=signal,macdhist=macdhist).dropna()
+    df['number'] = df.index.map(mdates.date2num) #캔들차트에 사용할수 있게 날짜형 인덱스를 숫자형으로 변환
+    ohlc = df[['number','Open','High','Low','Close']]
+
+    plt.figure(figsize=(9,7))
+
+    p1 = plt.subplot(2,1,1)
+    plt.title(f'Triple Screen Trading - First Screen {s1}')
+    plt.grid(True)
+    candlestick_ohlc(p1,ohlc.values,width=.6,colorup='red',colordown='blue') #ohlc의 숫자형 일자,시가,고가,저가,종가 값을 이용해서 캔들차트를 그린다.
+    p1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    plt.plot(df.number,df['ema130'],color='c',label='EMA130')
+    plt.legend(loc='best')
+
+    p2=plt.subplot(2,1,2)
+    plt.grid(True)
+    p2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    plt.bar(df.number,df['macdhist'],color='m',label='MACD-Hist')
+    plt.plot(df.number,df['macd'],color='b',label='MACD')
+    plt.plot(df.number,df['signal'],'g--',label='MACD-signal')
+    plt.legend(loc='best')
+    figure = plt.show()
+    st.pyplot(figure)
+
 
