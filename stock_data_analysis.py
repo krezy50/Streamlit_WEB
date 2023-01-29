@@ -478,9 +478,10 @@ def TradingforaLiving():
     st.subheader("알렉산더 엘더 - 주식시장에서 살아남는 심리투자 법칙")
     st.write("삼중창 매매 시스템 - 추세 추종과 역추세 매매법을 함께 사용하며, 세 단계의 참을 거쳐 더 정확한 매매 시점을 찾도록 구성되어 있다.")
     st.write(":moneybag:첫번째 창")
+    st.write("시장의 장기 추세를 분석하기 위해 26주 지수 이동평균에 해당하는 EMA130그래프와 주간 MACD히스토그램을 함께 표시")
 
-    s1 = st.text_input("분석종목: ", value='AAPL')
-    date = st.date_input("시작날짜", datetime.date(2022, 1, 2))
+    s1 = st.text_input("분석종목: ", value='SOXL')
+    date = st.date_input("시작날짜", datetime.date(2020, 1, 2))
 
     # 실제 코드
     f1 = pdr.get_data_yahoo(s1, date)
