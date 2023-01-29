@@ -519,4 +519,35 @@ def TradingforaLiving():
     figure = plt.show()
     st.pyplot(figure)
 
+    st.write(":moneybag:두번째 창 - 스토캐스틱 그래프")
+    st.write("첫번째창의 추세방향과 역행하는 파도를 파악하는데 오실레이터를 활용한다. 시장이 하락할때 매수기회, 시장이 상승할때 매도 기회를 제공한다.")
+    st.write("130일 지수이동평균이 상승하고 있을때, 스토캐스틱이 30 아래로 내려가면 매수 기회")
+    st.write("130일 지수이동평균이 하락하고 있을때, 스토캐스틱이 70 위로 올라가면 매도 기회")
+
+    #위 코드 이어서 작성
+    nday_high = df.High.rolling(window=14,min_periods=1).max() #14일동안 최댓값
+    nday_low = df.Low.rolling(window=14,min_periods=1).min() #14일동안 최소값
+    fast_k = (df.Close - nday_low) / (nday_high - nday_low) * 100 #빠른선 %K
+    slow_d = fast_k.rolling(window=3).mean() #3일 동안 %K의 평균을 구해서 느린선%D
+    df = df.assign(fast_k=fast_k,slow_d=slow_d).dropna() #결측치를 제거
+
+    plt.figure(figsize=(9,7))
+    p1 = plt.subplot(2,1,1)
+    plt.title(f'Triple Screen Trading - Second Screen {s1}')
+    plt.grid(True)
+    candlestick_ohlc(p1,ohlc.values,width=.6,colorup='red',colordown='blue') #ohlc의 숫자형 일자,시가,고가,저가,종가 값을 이용해서 캔들차트를 그린다.
+    p1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    plt.plot(df.number,df['ema130'],color='c',label='EMA130')
+    plt.legend(loc='best')
+
+    p2=plt.subplot(2,1,2)
+    plt.grid(True)
+    p2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    plt.plot(df.number,df['fast_k'],color='c',label='%K')
+    plt.plot(df.number,df['slow_d'],color='k',label='%D')
+    plt.yticks([0,20,80,100])
+    plt.legend(loc='best')
+    figure = plt.show()
+    st.pyplot(figure)
+
 
