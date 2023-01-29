@@ -477,8 +477,7 @@ def TradingforaLiving():
 
     st.subheader("알렉산더 엘더 - 주식시장에서 살아남는 심리투자 법칙")
     st.write("삼중창 매매 시스템 - 추세 추종과 역추세 매매법을 함께 사용하며, 세 단계의 참을 거쳐 더 정확한 매매 시점을 찾도록 구성되어 있다.")
-    st.write(":moneybag:첫번째 창")
-    st.write("시장의 장기 추세를 분석하기 위해 26주 지수 이동평균에 해당하는 EMA130그래프와 주간 MACD히스토그램을 함께 표시")
+
 
     s1 = st.text_input("분석종목: ", value='SOXL')
     date = st.date_input("시작날짜", datetime.date(2020, 1, 2))
@@ -496,51 +495,43 @@ def TradingforaLiving():
     macdhist = macd - signal
 
     df = df.assign(ema130=ema130, ema60=ema60,macd=macd, signal=signal,macdhist=macdhist).dropna()
+
     df['number'] = df.index.map(mdates.date2num) #캔들차트에 사용할수 있게 날짜형 인덱스를 숫자형으로 변환
     ohlc = df[['number','Open','High','Low','Close']]
 
-    plt.figure(figsize=(9,7))
+    nday_high = df.High.rolling(window=14,min_periods=1).max() #14일동안 최댓값
+    nday_low = df.Low.rolling(window=14,min_periods=1).min() #14일동안 최소값
 
-    p1 = plt.subplot(2,1,1)
-    plt.title(f'Triple Screen Trading - First Screen {s1}')
+    fast_k = (df.Close - nday_low) / (nday_high - nday_low) * 100 #빠른선 %K
+    slow_d = fast_k.rolling(window=3).mean() #3일 동안 %K의 평균을 구해서 느린선%D
+    df = df.assign(fast_k=fast_k,slow_d=slow_d).dropna() #결측치를 제거
+
+
+    plt.figure(figsize=(9,9))
+
+    p1 = plt.subplot(3,1,1)
+    plt.title(f'Triple Screen Trading {s1}')
     plt.grid(True)
     candlestick_ohlc(p1,ohlc.values,width=.6,colorup='red',colordown='blue') #ohlc의 숫자형 일자,시가,고가,저가,종가 값을 이용해서 캔들차트를 그린다.
     p1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.plot(df.number,df['ema130'],color='c',label='EMA130')
+
+    for i in range(1,len(df.Close)):
+        if df.ema130.values[i-1] < df.ema130.values[i] and df.slow_d.values[i-1] >= 20 and df.slow_d.values[i] < 20:
+            plt.plot(df.number.values[i], df.Close.values[i]-10,'r^')
+        elif df.ema130.values[i-1] > df.ema130.values[i] and df.slow_d.values[i-1] <= 80 and df.slow_d.values[i] >80 :
+            plt.plot(df.number.values[i], df.Close.values[i]+10, 'bv')
     plt.legend(loc='best')
 
-    p2=plt.subplot(2,1,2)
+    p2=plt.subplot(3,1,2)
     plt.grid(True)
     p2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.bar(df.number,df['macdhist'],color='m',label='MACD-Hist')
     plt.plot(df.number,df['macd'],color='b',label='MACD')
     plt.plot(df.number,df['signal'],'g--',label='MACD-signal')
     plt.legend(loc='best')
-    figure = plt.show()
-    st.pyplot(figure)
 
-    st.write(":moneybag:두번째 창 - 스토캐스틱 그래프")
-    st.write("첫번째창의 추세방향과 역행하는 파도를 파악하는데 오실레이터를 활용한다. 시장이 하락할때 매수기회, 시장이 상승할때 매도 기회를 제공한다.")
-    st.write("130일 지수이동평균이 상승하고 있을때, 스토캐스틱이 30 아래로 내려가면 매수 기회")
-    st.write("130일 지수이동평균이 하락하고 있을때, 스토캐스틱이 70 위로 올라가면 매도 기회")
-
-    #위 코드 이어서 작성
-    nday_high = df.High.rolling(window=14,min_periods=1).max() #14일동안 최댓값
-    nday_low = df.Low.rolling(window=14,min_periods=1).min() #14일동안 최소값
-    fast_k = (df.Close - nday_low) / (nday_high - nday_low) * 100 #빠른선 %K
-    slow_d = fast_k.rolling(window=3).mean() #3일 동안 %K의 평균을 구해서 느린선%D
-    df = df.assign(fast_k=fast_k,slow_d=slow_d).dropna() #결측치를 제거
-
-    plt.figure(figsize=(9,7))
-    p1 = plt.subplot(2,1,1)
-    plt.title(f'Triple Screen Trading - Second Screen {s1}')
-    plt.grid(True)
-    candlestick_ohlc(p1,ohlc.values,width=.6,colorup='red',colordown='blue') #ohlc의 숫자형 일자,시가,고가,저가,종가 값을 이용해서 캔들차트를 그린다.
-    p1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.plot(df.number,df['ema130'],color='c',label='EMA130')
-    plt.legend(loc='best')
-
-    p2=plt.subplot(2,1,2)
+    p2=plt.subplot(3,1,3)
     plt.grid(True)
     p2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.plot(df.number,df['fast_k'],color='c',label='%K')
@@ -549,5 +540,20 @@ def TradingforaLiving():
     plt.legend(loc='best')
     figure = plt.show()
     st.pyplot(figure)
+
+    st.write(":moneybag:첫번째 창")
+    st.write("시장의 장기 추세를 분석하기 위해 26주 지수 이동평균에 해당하는 EMA130그래프와 주간 MACD히스토그램을 함께 표시")
+
+    st.write(":moneybag:두번째 창 - 스토캐스틱 그래프")
+    st.write("첫번째창의 추세방향과 역행하는 파도를 파악하는데 오실레이터를 활용한다. 시장이 하락할때 매수기회, 시장이 상승할때 매도 기회를 제공한다.")
+    st.write("130일 지수이동평균이 상승하고 있을때, 스토캐스틱이 30 아래로 내려가면 매수 기회")
+    st.write("130일 지수이동평균이 하락하고 있을때, 스토캐스틱이 70 위로 올라가면 매도 기회")
+
+    st.write(":moneybag:세번째 창 - 진입시점 찾기")
+    st.write("추적 매수 스톱기법 : 주간 추세가 상승하고 있을때, 일간 오실레이터가 하락하면서 매수신호가 발생하면 전일 고점보다 한 틱 위에서 매수주문 ")
+    st.write("만약 주간 추세대로 가격이 계속상승해 전일 고점을 돌파하는 순간 매수주문이 체결")
+    st.write("매수 주문이 체결되면 전일의 저가나 그 전일의 저가 중 낮은 가격보다 한틱 아래에 매도 주문을 걸어놓음으로서 손실을 막을수 있다.")
+    st.write("만약 가격이 하락한다면 매수 스톱은 체결되지 않을 것이다. 매수 주문이 체결되지 않으면 다시 전일 고점 1틱 위까지 매수 주문의 수준을 낮춘다.")
+    st.write("주간 추세가 반대 방향으로 움직이거나 매수 신호가 취소될때가지 매일 매수 스톱을 낮추면서 주문을 걸어놓는다.")
 
 
