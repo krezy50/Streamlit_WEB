@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import datetime
 
-
+import FinanceDataReader as fdr
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from mpl_finance import candlestick_ohlc
@@ -556,4 +556,72 @@ def TradingforaLiving():
     st.write("만약 가격이 하락한다면 매수 스톱은 체결되지 않을 것이다. 매수 주문이 체결되지 않으면 다시 전일 고점 1틱 위까지 매수 주문의 수준을 낮춘다.")
     st.write("주간 추세가 반대 방향으로 움직이거나 매수 신호가 취소될때가지 매일 매수 스톱을 낮추면서 주문을 걸어놓는다.")
 
+class DualMomentum:
 
+    def __init__(self):
+        self.mk = fdr.StockListing('S&P500')
+
+    def get_rltv_memontum(self,start_date,end_date,stock_count):
+
+        rows = []
+        columns = ['code', 'company','old_price', 'new_price', 'returns']
+
+        for i, code in enumerate(self.mk.Symbol):
+
+            f1 = pdr.get_data_yahoo(code, start_date, end_date)
+            try:
+                f1.index = f1.index.date  # index 시간제거
+            except:
+                f1.index = f1.index
+
+            df = pd.DataFrame(f1)
+            # st.write(f1)
+            # st.write(code)
+            old_price = df.Close.head(1)
+            index = old_price.index.tolist()
+            try:
+                old_price = old_price[index[0]]
+            except:
+                old_price = 0
+            # st.write(i,old_price)
+
+            new_price = df.Close.tail(1)
+            index = new_price.index.tolist()
+            try:
+                new_price = new_price[index[0]]
+            except:
+                new_price = 0
+            # st.write(new_price)
+
+            try:
+                returns = (new_price / old_price - 1) * 100
+            except:
+                returns = 0
+
+            rows.append([code,self.mk.Name[i], old_price, new_price, returns])
+
+        df2 = pd.DataFrame(rows, columns=columns)
+        df2 = df2[['code', 'company','old_price', 'new_price', 'returns']]
+        df2 = df2.sort_values(by='returns', ascending=False)
+        df2 = df2.head(stock_count)
+        df2.index = pd.Index(range(stock_count))
+
+        return df2
+
+
+def DualMomentumAnalysis():
+
+    st.subheader("게리 안토나치 - 듀얼모멘텀 투자")
+    st.write("상대강도가 센 주식 종목들에 투자하는 상대적 모멘텀 전략과 과거 6~12개월의 수익이 단기 국채 수익률을 능가하는 "
+             "강세장에서만 투자하는 절대적 모멘텀 전략을 하나로 합친 듀얼 전략이다.")
+
+    stock_count = st.number_input("종목 수",value=30)
+    date1 = st.date_input("시작날짜", datetime.datetime.today()+datetime.timedelta(days=-180))
+    date2 = st.date_input("종료날짜", datetime.datetime.today())
+
+    dm = DualMomentum()
+    rm = dm.get_rltv_memontum(date1,date2,stock_count)
+
+    st.write(rm)
+
+    # 실제 코드

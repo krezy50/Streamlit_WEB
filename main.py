@@ -11,7 +11,7 @@ from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
 from backtesting_straregy import Backtesting
 from stock_data_analysis import CompareStockAnalysis,MDDAnalysis,RelationAnalysis,MonteCarloSimulation
-from stock_data_analysis import SharpRatioSimulation,BollingerBandAnalysis,TradingforaLiving
+from stock_data_analysis import SharpRatioSimulation,BollingerBandAnalysis,TradingforaLiving,DualMomentumAnalysis
 
 with st.form("시스템 선택"):
     st.header("Python projects of 502")
@@ -28,7 +28,8 @@ if system == '파이썬 증권데이터 분석':
                                  'Trading전략 - 몬테카를로 시뮬레이션',
                                  'Trading전략 - 샤프지수 시뮬레이션',
                                  'Trading전략 - 볼랜져밴드 지표분석',
-                                 'Trading전략 - 심리투자 법칙'
+                                 'Trading전략 - 심리투자 법칙',
+                                 'Trading전략 - 듀얼모멘텀 투자',
                                  )
                             )
 
@@ -46,6 +47,8 @@ if system == '파이썬 증권데이터 분석':
         BollingerBandAnalysis()
     elif selected in 'Trading전략 - 심리투자 법칙':
         TradingforaLiving()
+    elif selected in 'Trading전략 - 듀얼모멘텀 투자':
+        DualMomentumAnalysis()
 
 elif system == '임대 수익률 계산기':
     st.caption("Sidebar MENU 에서 관련 정보를 입력하세요.")
