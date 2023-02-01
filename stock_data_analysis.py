@@ -559,10 +559,17 @@ def TradingforaLiving():
 class DualMomentum:
 
     def __init__(self):
+        """생성자 : S&P500, KRX 종목코드(codes)를 구하기 위한 Dataframe 객체 생성"""
         self.mk = fdr.StockListing('S&P500')
 
     def get_rltv_memontum(self,start_date,end_date,stock_count):
+        """특정기간동안 수익률이 제일높았던 stock_count 개의 종목들 (상대모멘텀)
+            - start date : 상대 모멘텀을 구할 시작날짜
+            - end date : 상대 모멘텀을 구할 종료날짜
+            - stock count : 상대 모멘텀을 구할 종목수
+        """
 
+        # KRX 종목별 수익률을 구해서 2차원 리스트 형태로 추가
         rows = []
         columns = ['code', 'company','old_price', 'new_price', 'returns']
 
@@ -571,7 +578,7 @@ class DualMomentum:
             f1 = pdr.get_data_yahoo(code, start_date, end_date)
             try:
                 f1.index = f1.index.date  # index 시간제거
-            except:
+            except: #오류 data제거
                 f1.index = f1.index
 
             df = pd.DataFrame(f1)
@@ -581,7 +588,7 @@ class DualMomentum:
             index = old_price.index.tolist()
             try:
                 old_price = old_price[index[0]]
-            except:
+            except: #오류 data제거
                 old_price = 0
             # st.write(i,old_price)
 
@@ -589,7 +596,7 @@ class DualMomentum:
             index = new_price.index.tolist()
             try:
                 new_price = new_price[index[0]]
-            except:
+            except: #오류 data제거
                 new_price = 0
             # st.write(new_price)
 
@@ -608,6 +615,62 @@ class DualMomentum:
 
         return df2
 
+    def get_abs_momentum(self, rltv_momentum, start_date, end_date):
+        """특정 기간동안 상대 모멘텀에 투자 했을 때의 평균 수익률 (절대 모멘텀)
+            - retv_momentum : get_rltv_momentum()함수의 리턴값(상대 모멘텀)
+            - start date : 절대 모멘텀을 구할 매수일
+            - end date : 절대 모멘텀을 구할 매도일
+        """
+
+        stocklist = list(rltv_momentum['code'])
+
+        # 상대 모멘텀의 종목별 수익률을 구해서 2차원 리스트 형태로 추가
+        rows = []
+        columns = ['code', 'company', 'old_price', 'new_price', 'returns']
+
+        for i, code in enumerate(stocklist):
+
+            f1 = pdr.get_data_yahoo(code, start_date, end_date)
+            try:
+                f1.index = f1.index.date  # index 시간제거
+            except:  # 오류 data제거
+                f1.index = f1.index
+
+            df = pd.DataFrame(f1)
+            # st.write(f1)
+            # st.write(code)
+            old_price = df.Close.head(1)
+            index = old_price.index.tolist()
+            try:
+                old_price = old_price[index[0]]
+            except:  # 오류 data제거
+                old_price = 0
+            # st.write(i,old_price)
+
+            new_price = df.Close.tail(1)
+            index = new_price.index.tolist()
+            try:
+                new_price = new_price[index[0]]
+            except:  # 오류 data제거
+                new_price = 0
+            # st.write(new_price)
+
+            try:
+                returns = (new_price / old_price - 1) * 100
+            except:
+                returns = 0
+
+            rows.append([code, self.mk.Name[i], old_price, new_price, returns])
+
+        #절대 모멘텀 데이터프레임을 생성한 후 수익률순으로 출력
+        df2 = pd.DataFrame(rows, columns=columns)
+        df2 = df2[['code', 'company', 'old_price', 'new_price', 'returns']]
+        df2 = df2.sort_values(by='returns', ascending=False)
+
+        st.write(df2)
+
+        return
+
 
 def DualMomentumAnalysis():
 
@@ -616,12 +679,15 @@ def DualMomentumAnalysis():
              "강세장에서만 투자하는 절대적 모멘텀 전략을 하나로 합친 듀얼 전략이다.")
 
     stock_count = st.number_input("종목 수",value=30)
-    date1 = st.date_input("시작날짜", datetime.datetime.today()+datetime.timedelta(days=-180))
-    date2 = st.date_input("종료날짜", datetime.datetime.today())
+    date1 = st.date_input("시작날짜", datetime.datetime.today()+datetime.timedelta(days=-60))
+    date2 = st.date_input("종료날짜", datetime.datetime.today()+datetime.timedelta(days=-30))
 
     dm = DualMomentum()
     rm = dm.get_rltv_memontum(date1,date2,stock_count)
-
     st.write(rm)
+    am = dm.get_abs_momentum(rm,
+                             datetime.datetime.today()+datetime.timedelta(days=-30), #매수일
+                             datetime.datetime.today()) #매도일
+    st.write(am)
 
-    # 실제 코드
+
