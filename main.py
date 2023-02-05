@@ -10,13 +10,19 @@ from rental_investment_calculator import RentalInvestmentCalculator #임대 수�
 from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
 from backtesting_straregy import Backtesting
+from backtrader_straregy import Backtrader
 from stock_data_analysis import CompareStockAnalysis,MDDAnalysis,RelationAnalysis,MonteCarloSimulation
 from stock_data_analysis import SharpRatioSimulation,BollingerBandAnalysis,TradingforaLiving,DualMomentumAnalysis
 
 with st.form("시스템 선택"):
     st.header("Python projects of 502")
 
-    system=st.radio("Choice a project", ('파이썬 증권데이터 분석','임대 수익률 계산기', '시장 금리 스크래핑','BackTesing 예제'))
+    system=st.radio("Choice a project", ('파이썬 증권데이터 분석',
+                                         'Backtrader 라이브러리 예제',
+                                         'BackTesing 라이브러리 예제',
+                                         '시장 금리 스크래핑',
+                                         '임대 수익률 계산기',))
+
     submitted = st.form_submit_button("선택")
 
 if system == '파이썬 증권데이터 분석':
@@ -50,6 +56,20 @@ if system == '파이썬 증권데이터 분석':
     elif selected in 'Trading전략 - 듀얼모멘텀 투자':
         DualMomentumAnalysis()
 
+elif system == 'Backtrader 라이브러리 예제':
+
+    st.markdown("https://www.backtrader.com/")
+    Backtrader()
+
+elif system == 'BackTesing 라이브러리 예제':
+
+    st.markdown("https://kernc.github.io/backtesting.py/")
+    Backtesting()
+
+elif system == '시장 금리 스크래핑':
+
+    MarketRateScrapping()
+
 elif system == '임대 수익률 계산기':
     st.caption("Sidebar MENU 에서 관련 정보를 입력하세요.")
     result = RentalInvestmentCalculator()
@@ -70,16 +90,4 @@ elif system == '임대 수익률 계산기':
         dataframe = pd.read_csv(uploaded_file)
         st.write(dataframe)
 
-elif system == '시장 금리 스크래핑':
 
-    MarketRateScrapping()
-
-elif system == 'BackTesing 예제':
-
-    st.markdown("https://kernc.github.io/backtesting.py/")
-    Backtesting()
-
-# elif system == 'Backtrader':
-#
-#     st.markdown("https://www.backtrader.com/")
-#     Backtrader()
