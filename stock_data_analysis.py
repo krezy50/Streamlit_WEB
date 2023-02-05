@@ -556,11 +556,14 @@ def TradingforaLiving():
     st.write("만약 가격이 하락한다면 매수 스톱은 체결되지 않을 것이다. 매수 주문이 체결되지 않으면 다시 전일 고점 1틱 위까지 매수 주문의 수준을 낮춘다.")
     st.write("주간 추세가 반대 방향으로 움직이거나 매수 신호가 취소될때가지 매일 매수 스톱을 낮추면서 주문을 걸어놓는다.")
 
-class DualMomentum:
+class DualMomentum():
 
     def __init__(self):
-        """생성자 : S&P500, KRX 종목코드(codes)를 구하기 위한 Dataframe 객체 생성"""
-        stockmarket = st.text_input("Input a stock market")
+        """생성자 : S&P500, KRX 종목코드(codes)를 구하기 위한 Dataframe 객체 생성
+            - 한국 거래소 : KRX(KOSPI, KOSDAQ, KONEX)
+            - 미국 거래소 : NASDAQ, NYSE, AMEX, S&P500
+        """
+        stockmarket = st.text_input("Input a stock market",value='S&P500')
         self.mk = fdr.StockListing(stockmarket)
 
     def get_rltv_memontum(self,start_date,end_date,stock_count):
