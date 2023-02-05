@@ -5,7 +5,7 @@ import datetime
 import FinanceDataReader as fdr
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from mpl_finance import candlestick_ohlc
+from mplfinance.original_flavor import candlestick_ohlc
 from pandas_datareader import data as pdr
 from scipy import stats
 import numpy as np
