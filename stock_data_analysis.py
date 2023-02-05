@@ -560,7 +560,8 @@ class DualMomentum:
 
     def __init__(self):
         """생성자 : S&P500, KRX 종목코드(codes)를 구하기 위한 Dataframe 객체 생성"""
-        self.mk = fdr.StockListing('S&P500')
+        stockmarket = st.text_input("Input a stock market")
+        self.mk = fdr.StockListing(stockmarket)
 
     def get_rltv_memontum(self,start_date,end_date,stock_count):
         """특정기간동안 수익률이 제일높았던 stock_count 개의 종목들 (상대모멘텀)
@@ -678,16 +679,22 @@ def DualMomentumAnalysis():
     st.write("상대강도가 센 주식 종목들에 투자하는 상대적 모멘텀 전략과 과거 6~12개월의 수익이 단기 국채 수익률을 능가하는 "
              "강세장에서만 투자하는 절대적 모멘텀 전략을 하나로 합친 듀얼 전략이다.")
 
-    stock_count = st.number_input("종목 수",value=30)
-    date1 = st.date_input("시작날짜", datetime.datetime.today()+datetime.timedelta(days=-60))
-    date2 = st.date_input("종료날짜", datetime.datetime.today()+datetime.timedelta(days=-30))
+    with st.form("my_form"):
 
-    dm = DualMomentum()
-    rm = dm.get_rltv_memontum(date1,date2,stock_count)
-    st.write(rm)
-    am = dm.get_abs_momentum(rm,
-                             datetime.datetime.today()+datetime.timedelta(days=-30), #매수일
-                             datetime.datetime.today()) #매도일
-    st.write(am)
+        st.write("Inside the form")
+        stock_count = st.number_input("종목 수",value=30)
+        date1 = st.date_input("시작날짜", datetime.datetime.today()+datetime.timedelta(days=-60))
+        date2 = st.date_input("종료날짜", datetime.datetime.today()+datetime.timedelta(days=-30))
+
+        submitted = st.form_submit_button("Submit")
+
+        if submitted:
+            dm = DualMomentum()
+            rm = dm.get_rltv_memontum(date1,date2,stock_count)
+            st.write(rm)
+            am = dm.get_abs_momentum(rm,
+                                     datetime.datetime.today()+datetime.timedelta(days=-30), #매수일
+                                     datetime.datetime.today()) #매도일
+            st.write(am)
 
 
