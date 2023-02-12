@@ -9,15 +9,17 @@ import pandas as pd
 from rental_investment_calculator import RentalInvestmentCalculator #임대 수익 계산기
 from market_rate import MarketRateScrapping #스크랩핑
 from control_excel import convert_df
-from backtesting_straregy import Backtesting
-from backtrader_straregy import Backtrader
+from macd_straregy import MACDStrategy
+from backtesting_strategy import Backtesting
+from backtrader_strategy import Backtrader
 from stock_data_analysis import CompareStockAnalysis,MDDAnalysis,RelationAnalysis,MonteCarloSimulation
 from stock_data_analysis import SharpRatioSimulation,BollingerBandAnalysis,TradingforaLiving,DualMomentumAnalysis
 
 with st.form("시스템 선택"):
     st.header("Python projects of 502")
 
-    system=st.radio("Choice a project", ('파이썬 증권데이터 분석',
+    system=st.radio("Choice a project", ('MACD Oscillator / RSI 전략',
+                                         '파이썬 증권데이터 분석',
                                          'Backtrader 라이브러리 예제',
                                          'BackTesing 라이브러리 예제',
                                          '시장 금리 스크래핑',
@@ -25,7 +27,10 @@ with st.form("시스템 선택"):
 
     submitted = st.form_submit_button("선택")
 
-if system == '파이썬 증권데이터 분석':
+if system == 'MACD Oscillator / RSI 전략':
+    MACDStrategy()
+
+elif system == '파이썬 증권데이터 분석':
 
     selected = st.selectbox('Choose your analysis method.',
                                 ('주식 비교하기',
