@@ -1,17 +1,74 @@
 import streamlit as st
 import pandas as pd
-import datetime
-
-import FinanceDataReader as fdr
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import yfinance as yf
+import backtrader as bt
+import matplotlib
+import datetime
 from mplfinance.original_flavor import candlestick_ohlc
 from pandas_datareader import data as pdr
-from scipy import stats
-import numpy as np
-import yfinance as yf
+
 
 yf.pdr_override()
+
+
+class Mystrategy(bt.Strategy):
+
+    def __init__(self):
+        self.dataclose = self.datas[0].close
+        self.order = None
+        self.buyprice = None
+        self.buycomm = None
+        self.rsi = bt.indicators.RSI_SMA(self.data.close, period =21) #RSI_SMA 지표 사용
+        self.macdhisto = bt.indicators.MACDHisto(self.data.close)
+
+    def notify_order(self, order): #order stats가 변할때 자동적으로 실행
+        if order.status in [order.Submitted,order.Accepted]:
+            return
+
+        if order.status in [order.Completed]: #주문상태가 Completed 되면 상세 주문정보를 출력
+            if order.isbuy():
+                self.log(f'BUY : 주가 {order.executed.price:,.0f},'
+                         f'수량 {order.executed.size:.0f},'
+                         f'수수료 {order.executed.comm:.0f},'
+                         # f'자산 {cerebro.broker.getvalue():.0f},'
+                         )
+            else:
+                self.log(f'SELL : 주가 {order.executed.price:,.0f},'
+                         f'수량 {order.executed.size:.0f},'
+                         f'수수료 {order.executed.comm:.0f},'
+                         # f'자산 {cerebro.broker.getvalue():.0f},'
+                         )
+            self.bar_executed = len(self)
+        elif order.status in [order.Canceled]:
+            self.log('ORDER CANCELD')
+        elif order.status in [order.Margin]:
+            self.log('ORDER MARGIN')
+        elif order.status in [order.Rejected]:
+            self.log('ORDER REJECTED')
+        self.order = None
+
+    def notify_trade(self, trade):
+        if not trade.isclosed:
+            return
+
+        self.log(['매매수익률', '{:.0f}'.format(trade.pnl)])
+
+    def next(self): #주어진 데이터와 지표를 만족시키는 최소 주기마다 자동으로 호출된다.
+        if not self.position:
+            if self.rsi < 45 and self.macdhisto[-1] < self.macdhisto[0]  : #rsi 30보다 낮으면 매수
+                self.order = self.buy()
+        else:
+            if self.rsi > 60 and self.macdhisto[-1] > self.macdhisto[0] : #rsi 30보다 높으면 매도
+                self.order = self.sell()
+
+    def log(self,txt,dt=None): #텍스트 인수를 전달 받아서 셀화면에 주문일자와 함께 출력하는 역활을 한다.
+        dt = self.datas[0].datetime.date(0)
+        st.write(f'[{dt.isoformat()}] {txt}')
+
+
+
 
 def MACDStrategy():
     """
@@ -27,6 +84,7 @@ def MACDStrategy():
 
         # 실제 코드
         for s in list:
+            st.subheader(f"분석 종목 : {s}")
             f1 = pdr.get_data_yahoo(s, date)
 
             f1.index = f1.index.date  # index 시간제거
@@ -91,10 +149,39 @@ def MACDStrategy():
             figure = plt.show()
             st.pyplot(figure)
 
-    else:
-        s1 = st.text_input("분석종목: ", value='SOXL')
+            st.subheader("BackTest 결과")
+            # Use a backend that doesn't display the plot to the user
+            # we want only to display inside the Streamlit page
+            matplotlib.use('Agg')
 
-        f1 = pdr.get_data_yahoo(s1, date)
+            cerebro = bt.Cerebro()  # create a "Cerebro" engine instance
+            cerebro.addstrategy(Mystrategy)  # Add the trading strategy
+
+            feed = bt.feeds.PandasData(dataname=yf.download(s, date))
+
+            # st.write(data)
+            cerebro.adddata(feed)  # Add the data feed
+            cerebro.broker.setcash(10000000)
+            cerebro.broker.setcommission(commission=0.0014)
+
+            cerebro.addsizer(bt.sizers.PercentSizer, percents=90)  # 매매 단위
+
+            st.write(f'Initial Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
+            cerebro.run()  # run it all
+
+            st.write(f'Final Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
+
+            cerebro.plot()
+
+            figure = cerebro.plot(style='candlestick')[0][0] #캔들차트로 설정
+
+            # show the plot in Streamlit
+            st.pyplot(figure)
+
+    else:
+        stock = st.text_input("분석종목: ", value='SOXL')
+
+        f1 = pdr.get_data_yahoo(stock, date)
 
         f1.index = f1.index.date  # index 시간제거
         df = pd.DataFrame(f1)
@@ -123,7 +210,7 @@ def MACDStrategy():
         plt.figure(figsize=(9, 9))
 
         p1 = plt.subplot(3, 1, 1)
-        plt.title(f'MACD / MACD Osillator / RSI Trading {s1}')
+        plt.title(f'MACD / MACD Osillator / RSI Trading {stock}')
         plt.grid(True)
         candlestick_ohlc(p1, ohlc.values, width=.6, colorup='red',
                          colordown='blue')  # ohlc의 숫자형 일자,시가,고가,저가,종가 값을 이용해서 캔들차트를 그린다.
@@ -156,4 +243,33 @@ def MACDStrategy():
         plt.yticks([20, 30, 40, 50, 60, 70, 80])
         plt.legend(loc='best')
         figure = plt.show()
+        st.pyplot(figure)
+
+        st.subheader("BackTest 결과")
+        # Use a backend that doesn't display the plot to the user
+        # we want only to display inside the Streamlit page
+        matplotlib.use('Agg')
+
+        cerebro = bt.Cerebro()  # create a "Cerebro" engine instance
+        cerebro.addstrategy(Mystrategy)  # Add the trading strategy
+
+        feed = bt.feeds.PandasData(dataname=yf.download(stock, date))
+
+        # st.write(data)
+        cerebro.adddata(feed)  # Add the data feed
+        cerebro.broker.setcash(10000000)
+        cerebro.broker.setcommission(commission=0.0014)
+
+        cerebro.addsizer(bt.sizers.PercentSizer, percents=90)  # 매매 단위
+
+        st.write(f'Initial Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
+        cerebro.run()  # run it all
+
+        st.write(f'Final Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
+
+        cerebro.plot()
+
+        figure = cerebro.plot(style='candlestick')[0][0] #캔들차트로 설정
+
+        # show the plot in Streamlit
         st.pyplot(figure)
