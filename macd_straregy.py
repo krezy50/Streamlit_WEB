@@ -171,12 +171,12 @@ def MACDStrategy():
 
             st.write(f'Final Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
 
-            cerebro.plot()
-
-            figure = cerebro.plot(style='candlestick')[0][0] #캔들차트로 설정
-
-            # show the plot in Streamlit
-            st.pyplot(figure)
+            # cerebro.plot()
+            #
+            # figure = cerebro.plot(style='candlestick')[0][0] #캔들차트로 설정
+            #
+            # # show the plot in Streamlit
+            # st.pyplot(figure)
 
     else:
         stock = st.text_input("분석종목: ", value='SOXL')
@@ -267,9 +267,9 @@ def MACDStrategy():
 
         st.write(f'Final Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
 
-        cerebro.plot()
-
-        figure = cerebro.plot(style='candlestick')[0][0] #캔들차트로 설정
-
-        # show the plot in Streamlit
-        st.pyplot(figure)
+        # cerebro.plot()
+        #
+        # figure = cerebro.plot(style='candlestick')[0][0] #캔들차트로 설정
+        #
+        # # show the plot in Streamlit
+        # st.pyplot(figure)
