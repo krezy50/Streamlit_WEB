@@ -239,27 +239,27 @@ def macd_rsi_variation(s, date):
     figure = plt.show()
     st.pyplot(figure)
 
-    st.subheader("BackTest 결과")
-    # Use a backend that doesn't display the plot to the user
-    # we want only to display inside the Streamlit page
-    matplotlib.use('Agg')
-
-    cerebro = bt.Cerebro()  # create a "Cerebro" engine instance
-    cerebro.addstrategy(Mystrategy)  # Add the trading strategy
-
-    feed = bt.feeds.PandasData(dataname=yf.download(s, date))
-
-    # st.write(data)
-    cerebro.adddata(feed)  # Add the data feed
-    cerebro.broker.setcash(10000000)
-    cerebro.broker.setcommission(commission=0.0014)
-
-    cerebro.addsizer(bt.sizers.PercentSizer, percents=90)  # 매매 단위
-
-    st.write(f'Initial Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
-    cerebro.run()  # run it all
-
-    st.write(f'Final Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
+    # st.subheader("BackTest 결과")
+    # # Use a backend that doesn't display the plot to the user
+    # # we want only to display inside the Streamlit page
+    # matplotlib.use('Agg')
+    #
+    # cerebro = bt.Cerebro()  # create a "Cerebro" engine instance
+    # cerebro.addstrategy(Mystrategy)  # Add the trading strategy
+    #
+    # feed = bt.feeds.PandasData(dataname=yf.download(s, date))
+    #
+    # # st.write(data)
+    # cerebro.adddata(feed)  # Add the data feed
+    # cerebro.broker.setcash(10000000)
+    # cerebro.broker.setcommission(commission=0.0014)
+    #
+    # cerebro.addsizer(bt.sizers.PercentSizer, percents=90)  # 매매 단위
+    #
+    # st.write(f'Initial Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
+    # cerebro.run()  # run it all
+    #
+    # st.write(f'Final Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
 
 
 def MACDStrategy():
