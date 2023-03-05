@@ -69,7 +69,7 @@ class Mystrategy(bt.Strategy):
         dt = self.datas[0].datetime.date(0)
         st.write(f'[{dt.isoformat()}] {txt}')
 
-def macd_rsi(s, date):
+def macd_rsi(s, date): # 전략 version 0.1
 
     st.subheader(f"분석 종목 : {s}")
     f1 = pdr.get_data_yahoo(s, date)
@@ -159,12 +159,12 @@ def macd_rsi(s, date):
 
     st.write(f'Final Porfolio Value : {cerebro.broker.getvalue():,.0f} USD')
 
-def macd_rsi_variation(s, date):
+def macd_rsi_variation(s, date): # 전략 version 0.2
 
     st.subheader(f"분석 종목 : {s}")
     f1 = pdr.get_data_yahoo(s, date)
 
-    f1.index = f1.index.date  # index 시간제거
+    # f1.index = f1.index.date  # index 시간제거
     df = pd.DataFrame(f1)
 
     ema12 = df.Close.ewm(span=12).mean()  # 종가의 12일 지수 이동평균
@@ -185,7 +185,7 @@ def macd_rsi_variation(s, date):
 
     df = df.assign(ema26=ema26, ema12=ema12, macd=macd, signal=signal, macdhist=macdhist, rsi=rsi).dropna()
 
-    RSI_THRESHOLD = 0.20 #rsi 평균에 %15
+    RSI_THRESHOLD = 0.20 #rsi 평균에 20%
     rsi_ewm = df.rsi.ewm(span=52).mean() #rsi 지난 2개월 평균값
     rsi_max_threshold = rsi_ewm + (rsi_ewm * RSI_THRESHOLD)
     rsi_min_threshold = rsi_ewm - (rsi_ewm * RSI_THRESHOLD)
@@ -203,7 +203,7 @@ def macd_rsi_variation(s, date):
     candlestick_ohlc(p1, ohlc.values, width=.6, colorup='red',
                      colordown='blue')  # ohlc의 숫자형 일자,시가,고가,저가,종가 값을 이용해서 캔들차트를 그린다.
     p1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.plot(df.number, df['ema26'], color='c', label='EMA26')
+    plt.plot(df.number, df['ema26'], color='g', label='EMA26')
     plt.plot(df.number, df['ema12'], color='g', label='EMA12', linestyle='--')
     plt.legend(loc='best')
 
@@ -213,25 +213,32 @@ def macd_rsi_variation(s, date):
     p2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.bar(df.number, df['macdhist'], color='m', label='MACD-Hist')
     plt.plot(df.number, df['macd'], color='b', label='MACD')
-    plt.plot(df.number, df['signal'], 'g--', label='MACD-signal')
-
-
+    plt.plot(df.number, df['signal'], 'b--', label='MACD-signal')
 
     for i in range(1, len(df.Close)):
-        if df.macdhist.values[i - 1] > df.macdhist.values[i] and df.rsi.values[i] > df.rsi_max_threshold.values[i-2]:
+        if df.macdhist.values[i - 1] > df.macdhist.values[i] and df.rsi.values[i - 1] > df.rsi_max_threshold.values[i - 2] :
             plt.plot(df.number.values[i], 0, 'bv')
-        elif df.macdhist.values[i - 1] < df.macdhist.values[i] and df.rsi.values[i] < df.rsi_min_threshold.values[i-2]:
+
+        # elif df.macd.values[i - 1] > df.signal.values[i - 1] and df.macd.values[i] < df.signal.values[i] :
+        #     plt.plot(df.number.values[i], 0, 'bv')
+
+        elif df.macdhist.values[i - 1] < df.macdhist.values[i] and df.rsi.values[i - 1] < df.rsi_min_threshold.values[i - 2] :
             plt.plot(df.number.values[i], 0, 'r^')
+
+        # elif df.macd.values[i - 1] < df.signal.values[i - 1] and df.macd.values[i] > df.signal.values[i] :
+        #     plt.plot(df.number.values[i], 0, 'r^')
+
 
     plt.legend(loc='best')
 
     p2 = plt.subplot(3, 1, 3)
     plt.grid(True)
     p2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.plot(df.number, df['rsi'], color='b', label='%RSI')
-    plt.plot(df.number, df['rsi_ewm'], color='r', label='%RSI_ewm')
-    plt.plot(df.number, df['rsi_max_threshold'], 'g--', label='%RSI_max_threshold')
-    plt.plot(df.number, df['rsi_min_threshold'], 'g--', label='%RSI_min_threshold')
+    plt.plot(df.number, df['rsi'], color='b', label='RSI')
+    plt.plot(df.number, df['rsi_ewm'], color='r', label='RSI_ewm')
+    plt.plot(df.number, df['rsi_max_threshold'], 'g--', label='RSI_max')
+    plt.plot(df.number, df['rsi_min_threshold'], 'g--', label='RSI_min')
+    plt.fill_between(df.number, df['rsi_max_threshold'], df['rsi_min_threshold'], color='0.9')
     # plt.axhline(df.rsi_ewm.values[i]+RSI_THRESHOLD, 0, 1, color='green', linestyle='--')
     # plt.axhline(df.rsi_ewm.values[i]-RSI_THRESHOLD, 0, 1, color='green', linestyle='--')
     plt.yticks([20, 30, 40, 50, 60, 70, 80])
@@ -268,9 +275,13 @@ def MACDStrategy():
     :return:
     """
     st.subheader("MACD, MACD Oscillator, RSI 활용한 주식투자 by 502")
-
+    st.write(":moneybag:종목 과열/침체 : RSI 52일 평균지수의 +20% max, -20% min  설정")
+    st.caption("(RSI max, min 값을 고정하지 않고 종목마다 상대적으로 설정)")
+    st.write("-매도 조건 : MACD Hist 이 전날보다 낮으면서, 전날 RSI가 그 전날 RSI max보다 높을 경우 매도")
+    st.write("-매수 조건 : MACD Hist 이 전날보다 높으면서, 전날 RSI가 그 전날 RSI min보다 낮을 경우 매수")
+    
     selected = st.checkbox("보유종목")
-    date = st.date_input("시작날짜", datetime.date(2022, 10, 1))
+    date = st.date_input("시작날짜", datetime.datetime.today()-datetime.timedelta(days=180)) #6개월
 
     if selected:
         list = ['AAPL', 'ABBV', 'GOOGL', 'INTC', 'NAIL', 'SOXL', 'SOXS','TSM']

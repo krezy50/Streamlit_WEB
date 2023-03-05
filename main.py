@@ -18,7 +18,7 @@ from stock_data_analysis import SharpRatioSimulation,BollingerBandAnalysis,Tradi
 with st.form("시스템 선택"):
     st.header("Python projects of 502")
 
-    system=st.radio("Choice a project", ('MACD Oscillator / RSI 전략',
+    system=st.radio("Choice a project", ('MACD Oscillator / RSI 전략 by 502',
                                          '파이썬 증권데이터 분석',
                                          'Backtrader 라이브러리 예제',
                                          'BackTesing 라이브러리 예제',
@@ -27,7 +27,7 @@ with st.form("시스템 선택"):
 
     submitted = st.form_submit_button("선택")
 
-if system == 'MACD Oscillator / RSI 전략':
+if system == 'MACD Oscillator / RSI 전략 by 502':
     MACDStrategy()
 
 elif system == '파이썬 증권데이터 분석':
