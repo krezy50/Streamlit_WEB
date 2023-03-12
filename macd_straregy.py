@@ -285,7 +285,7 @@ def MACDStrategy():
     macd Oscillator 의 기울기로 매수 매도 비중을 조절한다.
     :return:
     """
-    st.subheader("MACD, MACD Oscillator, RSI 활용한 주식투자 by 502")
+    st.subheader("MACD, MACD Oscillator, RSI 활용한 주식투자 v0.02 by 502")
     st.write(":moneybag:종목 과열/침체 : RSI 52일 평균지수의 +20% max, -20% min  설정")
     st.caption("(RSI max, min 값을 고정하지 않고 종목마다 상대적으로 설정)")
     st.write(":red[:chart_with_upwards_trend:매수 조건 : MACD Hist 이 전날보다 높으면서, 전날 RSI가 그 전날 RSI min보다 낮을 경우 매수]")
@@ -298,7 +298,7 @@ def MACDStrategy():
     date = st.date_input("시작날짜", datetime.datetime.today()-datetime.timedelta(days=180)) #6개월
 
     if selected:
-        list = ['AAPL', 'ABBV', 'GOOGL', 'INTC', 'NAIL', 'SOXL', 'SOXS','TSM']
+        list = ['AAPL', 'AMZN', 'GOOGL', 'INTC', 'NAIL', 'SOXL', 'TSM']
 
         # 실제 코드
         for s in list:
