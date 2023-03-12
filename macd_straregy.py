@@ -286,12 +286,12 @@ def MACDStrategy():
     :return:
     """
     st.subheader("MACD, MACD Oscillator, RSI 활용한 주식투자 v0.02 by 502")
-    st.write(":moneybag:종목 과열/침체 : RSI 52일 평균지수의 +20% max, -20% min  설정")
+    st.write(":moneybag:종목 과매수/과매도 기준 : RSI 52일 평균지수의 +20% max, -20% min  설정")
     st.caption("(RSI max, min 값을 고정하지 않고 종목마다 상대적으로 설정)")
     st.write(":red[:chart_with_upwards_trend:매수 조건 : MACD Hist 이 전날보다 높으면서, 전날 RSI가 그 전날 RSI min보다 낮을 경우 매수]")
-    st.caption("종목 과침체 시점이 진정되는 시점에 매수 신호 발생, 매수는 분할 매수로 진행")
+    st.caption("종목 과매도 구간이 진정되는 시점에 매수 신호 발생, 매수는 분할 매수로 진행")
     st.write(":blue[:chart_with_downwards_trend:매도 조건 : MACD Hist 이 전날보다 낮으면서, 전날 RSI가 그 전날 RSI max보다 높을 경우 매도]")
-    st.caption("종목 과열 시점이 진정되는 시점에 매도 신호 발생, 매도는 분할로 하되 보유 금액의 1/3 씩 진행하고, 1/3이 남을 경우 지속 보유")
+    st.caption("종목 과매수 구간이 진정되는 시점에 매도 신호 발생, 매도는 분할로 하되 보유 금액의 1/3 씩 진행, 수익률이 10% 이상 일 경우 1/3은 지속 보유")
 
     
     selected = st.checkbox("보유종목 분석")
