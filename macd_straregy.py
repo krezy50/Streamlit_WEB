@@ -286,6 +286,7 @@ def MACDStrategy():
     :return:
     """
     st.subheader("MACD, MACD Oscillator, RSI 활용한 주식투자 v0.02 by 502")
+    st.write("해당 전략은 참고용이며, 모든 투자는 투자자에게 책임이 있습니다.")
     st.write(":moneybag:종목 과매수/과매도 기준 : RSI 52일 평균지수의 +20% max, -20% min  설정")
     st.caption("(RSI max, min 값을 고정하지 않고 종목마다 상대적으로 설정)")
     st.write(":red[:chart_with_upwards_trend:매수 조건 : MACD Hist 이 전날보다 높으면서, 전날 RSI가 그 전날 RSI min보다 낮을 경우 매수]")
